@@ -16,4 +16,3 @@ class Player(object):
 
     def get_hands(turns):
         """"""
-        
