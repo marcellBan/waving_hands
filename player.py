@@ -12,7 +12,6 @@ class Player(object):
         if effects:
             self.effects = effects
         else:
-            self.effects = {}#lollllll
+            self.effects = {}
 
     def get_hands(turns):
-        """"""
