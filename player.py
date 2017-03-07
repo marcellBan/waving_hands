@@ -33,6 +33,7 @@ class Player(object):
     def get_gesture(self, length):
         """
             returns a gesture with the desired length
+            raises ValueError if the requested length is too long
         """
         if length > len(self.hands):
             raise ValueError

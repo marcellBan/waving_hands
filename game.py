@@ -75,7 +75,8 @@ def print_input_layout(input_player, other_player):
     """
     gestures_to_print = min(len(input_player.hands), MAX_PRINTED_LINES)
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("     {0}          {1}".format(input_player.name, other_player.name)) # TODO spacing
+    print("     {0}{2}{1}".format(input_player.name, other_player.name,
+                                  " " * SPACING_BETWEEN_COLUMNS))
     for i in range(gestures_to_print):
         idx = len(input_player.hands) - gestures_to_print + i
         input_hand = input_player.get_hand_str(idx)
@@ -101,7 +102,7 @@ def calc_turn_result(p_one, p_two):
     """
     parse_for_player(p_one)
     parse_for_player(p_two)
-    #TODO call spell functions
+    # TODO call spell functions
 
 
 def parse_for_player(parsed_player):
@@ -112,23 +113,33 @@ def parse_for_player(parsed_player):
     try:
         for i in range(MAX_GESTURE_DEATH):
             ges_l, ges_r = parsed_player.get_gesture(i + 1)
-            #TODO zip hands
-            ges_l_zip = ges_l
-            ges_r_zip = ges_r
+            ges_l_zip = ""
+            ges_r_zip = ""
+            for left, right in zip(ges_l, ges_r):
+                if left == right:
+                    ges_l_zip = "".join((ges_l_zip, "(", left.lower()))
+                    ges_r_zip = "".join((ges_r_zip, "(", left.lower()))
+                else:
+                    ges_l_zip = "".join((ges_l_zip, left))
+                    ges_r_zip = "".join((ges_r_zip, right))
             for key in GESTURE_DICT:
                 if key == ges_l_zip and parsed_player.spell_to_cast.count(GESTURE_DICT[key]) == 0:
                     parsed_player.spell_to_cast.append(GESTURE_DICT[key])
                 if key == ges_r_zip and parsed_player.spell_to_cast.count(GESTURE_DICT[key]) == 0:
                     parsed_player.spell_to_cast.append(GESTURE_DICT[key])
     except ValueError:
-        pass #TODO ????
+        pass  # TODO do we need to do anything here????
 
 
 def do_game_end(p_one, p_two):
     """
         finishes a game
     """
-    if p_one.health <= 0:
+    if p_one.health <= 0 and p_two.health <= 0:
+        print("It's a draw. Both players died.")
+    elif p_one.effects["surrender"] and p_two.effects["surrender"]:
+        print("It's a draw. Both players surrendered.")
+    elif p_one.health <= 0:
         print("{0} wins by killing {1}.".format(p_two.name, p_one.name))
     elif p_two.health <= 0:
         print("{0} wins by killing {1}.".format(p_one.name, p_two.name))
