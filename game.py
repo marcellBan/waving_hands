@@ -7,7 +7,11 @@
 import os
 from copy import deepcopy as dcp
 from player import Player
-from spells import SPELL_DICT, EFFECT_DICT
+from spells import GESTURE_DICT, SPELL_DICT, EFFECT_DICT
+
+MAX_PRINTED_LINES = 10
+SPACING_BETWEEN_COLUMNS = 10
+MAX_GESTURE_DEATH = 8
 
 
 def play_game():
@@ -16,9 +20,9 @@ def play_game():
     """
     # init
     print("First player:")
-    player_one = Player(dcp(EFFECT_DICT), list(SPELL_DICT.keys()))
+    player_one = Player(dcp(EFFECT_DICT))
     print("Second player:")
-    player_two = Player(dcp(EFFECT_DICT), list(SPELL_DICT.keys()))
+    player_two = Player(dcp(EFFECT_DICT))
     # main game loop
     while player_one.health > 0 and player_two.health > 0 and \
             not player_one.effects["surrender"] and not player_two.effects["surrender"]:
@@ -54,9 +58,10 @@ def is_valid_gesture(gesture):
     ges = gesture.split('-')
     if len(ges) != 2:
         return False
-    for item in ges:
-        if valid_gestures.count(item) == 0:
-            return False
+    if valid_gestures.count(ges[0]) == 0:
+        return False
+    if valid_gestures.count(ges[1]) == 0:
+        return False
     if ges[0] == 'C' or ges[1] == 'C':
         return ges[0] == ges[1]
     return True
@@ -68,19 +73,21 @@ def print_input_layout(input_player, other_player):
         prints the gestures from the previous turns\n
         prints the players healths
     """
-    gestures_to_print = min(len(input_player.hands), 10)
+    gestures_to_print = min(len(input_player.hands), MAX_PRINTED_LINES)
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("     {0}          {1}".format(input_player.name, other_player.name))
+    print("     {0}          {1}".format(input_player.name, other_player.name)) # TODO spacing
     for i in range(gestures_to_print):
         idx = len(input_player.hands) - gestures_to_print + i
         input_hand = input_player.get_hand_str(idx)
         if other_player.hands[idx][0] == "*":  # other player invisible
             print("{1:2d}   {0}".format(input_hand, idx + 1) +
-                  " " * (len(input_player.name) + 10 - len(input_player.get_hand_str(idx))) +
+                  " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
+                         len(input_hand)) +
                   "-----")
         else:
             print("{1:2d}   {0}".format(input_hand, idx + 1) +
-                  " " * (len(input_player.name) + 10 - len(input_player.get_hand_str(idx))) +
+                  " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
+                         len(input_hand)) +
                   "{0}".format(other_player.get_hand_str(idx)))
     print("-" * 40)
     print("Your health: {0}     {1}'s health: {2}"
@@ -90,7 +97,31 @@ def print_input_layout(input_player, other_player):
 def calc_turn_result(p_one, p_two):
     """
         calculates the results of the last turn
+        and displays it
     """
+    parse_for_player(p_one)
+    parse_for_player(p_two)
+    #TODO call spell functions
+
+
+def parse_for_player(parsed_player):
+    """
+        parses the hands of the given player and marks the appropriate spell(s) for casting
+    """
+    parsed_player.spell_to_cast.clear()
+    try:
+        for i in range(MAX_GESTURE_DEATH):
+            ges_l, ges_r = parsed_player.get_gesture(i + 1)
+            #TODO zip hands
+            ges_l_zip = ges_l
+            ges_r_zip = ges_r
+            for key in GESTURE_DICT:
+                if key == ges_l_zip and parsed_player.spell_to_cast.count(GESTURE_DICT[key]) == 0:
+                    parsed_player.spell_to_cast.append(GESTURE_DICT[key])
+                if key == ges_r_zip and parsed_player.spell_to_cast.count(GESTURE_DICT[key]) == 0:
+                    parsed_player.spell_to_cast.append(GESTURE_DICT[key])
+    except ValueError:
+        pass #TODO ????
 
 
 def do_game_end(p_one, p_two):

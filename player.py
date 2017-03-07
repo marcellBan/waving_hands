@@ -9,10 +9,10 @@ class Player(object):
         represents a player
     """
 
-    def __init__(self, effects, spell_list, health=15):
+    def __init__(self, effects, health=15):
         self.health = health
         self.hands = []  # (* or _, left, right)
-        self.spell_to_cast = [(x, y) for x in spell_list for y in [False]]
+        self.spell_to_cast = []
         self.effects = effects
         self.name = input("Enter a player name: ")
 
@@ -27,4 +27,25 @@ class Player(object):
             adds a hand to the list of hands
         """
         ges = gesture.split('-')
-        self.hands.append(('*' if self.effects["invisible"] > 0 else '_', ges[0], ges[1]))
+        self.hands.append(
+            ('*' if self.effects["invisible"] > 0 else '_', ges[0], ges[1]))
+
+    def get_gesture(self, length):
+        """
+            returns a gesture with the desired length
+        """
+        if length > len(self.hands):
+            raise ValueError
+        else:
+            gesture_l = ""
+            gesture_r = ""
+            ges_len = min(len(self.hands), length)
+            for i in range(ges_len):
+                idx = len(self.hands) - length + i
+                gesture_l = "".join((gesture_l, self.hands[idx][1]))
+                gesture_r = "".join((gesture_r, self.hands[idx][2]))
+            if self.hands[-1][1] == " " or self.hands[-1][1] == "stab":
+                gesture_l = self.hands[-1][1]
+            if self.hands[-1][2] == " " or self.hands[-1][2] == "stab":
+                gesture_r = self.hands[-1][2]
+            return (gesture_l, gesture_r)
