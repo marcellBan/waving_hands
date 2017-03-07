@@ -102,7 +102,11 @@ def calc_turn_result(p_one, p_two):
     """
     parse_for_player(p_one)
     parse_for_player(p_two)
-    # TODO call spell functions
+    # TODO does this work properly?
+    for spell in p_one.spell_to_cast:
+        SPELL_DICT[spell](p_one, p_two)
+    for spell in p_two.spell_to_cast:
+        SPELL_DICT[spell](p_two, p_one)
 
 
 def parse_for_player(parsed_player):
