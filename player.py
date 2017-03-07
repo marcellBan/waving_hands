@@ -1,5 +1,6 @@
 """
     player object for the waving hands game
+    by night5word and grammar_naz1
 """
 
 class Player(object):
@@ -7,16 +8,9 @@ class Player(object):
         represents a player
     """
 
-    def __init__(self, effects=None, health=14):
+    def __init__(self, effects, spell_list, health=14):
         self.health = health
-        self._left_hand = []
-        self._right_hand = []
-        if effects:
-            self.effects = effects
-        else:
-            self.effects = {}
-
-    def get_hands(self, turns):
-        """
-            returns a list of tuples with the players last turns
-        """
+        self.hands = [] # (* or _, left, right)
+        self.spell_to_cast = [(x, y) for x in spell_list for y in [False]]
+        self.effects = effects
+        self.name = input("Enter a player name: ")
