@@ -2,12 +2,17 @@
     spell functions and dictionary and effect dictionary
     by night5word and grammar_naz1
 """
+def choose_target(casting_player, other_player):
+    answer = input("Choose your target: s = self, o = opponent")
+    return casting_player
+
 #Protection:
 def shield(casting_player, other_player):
     """shield spell"""
 
 def remove_enchantment(casting_player, other_player):
     """Remove Enchantment spell"""
+    target = choose_target(casting_player, other_player)
 
 def magic_mirror(casting_player, other_player):
     """magic mirror spell"""
@@ -101,6 +106,8 @@ def stab(casting_player, other_player):
     
 def nothing(casting_player, other_player):
     """nothing no-spell"""
+def surrender(casting_player, other_player):
+    """surrender spell"""
 
 GESTURE_DICT = {
     #Protection:
@@ -141,7 +148,8 @@ GESTURE_DICT = {
 
     #Non-spells
     "stab":     "Stab",
-    " ":        "Nothing"
+    " ":        "Nothing",
+    "(p":       "Surrender"
     }
 SPELL_DICT = {
     #Protection:
@@ -182,7 +190,8 @@ SPELL_DICT = {
 
     #Non-spells
     "Stab": stab,
-    "Nothing": nothing
+    "Nothing": nothing,
+    "Surrender": surrender
 
     }
 EFFECT_DICT = {
