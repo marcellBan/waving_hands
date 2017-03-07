@@ -15,5 +15,4 @@ class Player(object):
             self.effects = {}
 
     def get_hands(turns):
-        """"""
         
