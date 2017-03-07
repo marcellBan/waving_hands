@@ -36,6 +36,7 @@ def do_input(inputting_player, other_player):
     gesture = input("Please enter your gesture for this turn: ")
     while not is_valid_gesture(gesture):
         gesture = input("Gesture format: L-R\nPlease enter a valid gesture: ")
+    inputting_player.add_hand(gesture)
 
 
 def is_valid_gesture(gesture):
@@ -71,19 +72,17 @@ def print_input_layout(input_player, other_player):
     os.system('cls' if os.name == 'nt' else 'clear')
     print("     {0}          {1}".format(input_player.name, other_player.name))
     for i in range(gestures_to_print):
-        idx = -(i + 1)
+        idx = len(input_player.hands) - gestures_to_print + i
         input_hand = input_player.get_hand_str(idx)
         if other_player.hands[idx][0] == "*":  # other player invisible
-            print("{1:2d}   {0}".format(input_hand, input_player.hands
-                                        .index(input_player.hands[idx]) + 1) +
-                  " " * (10 - len(input_player.hands[idx])) +
+            print("{1:2d}   {0}".format(input_hand, idx + 1) +
+                  " " * (len(input_player.name) + 10 - len(input_player.get_hand_str(idx))) +
                   "-----")
         else:
-            print("{1:2d}   {0}".format(input_hand, input_player.hands
-                                        .index(input_player.hands[idx]) + 1) +
-                  " " * (10 - len(input_player.hands[idx])) +
+            print("{1:2d}   {0}".format(input_hand, idx + 1) +
+                  " " * (len(input_player.name) + 10 - len(input_player.get_hand_str(idx))) +
                   "{0}".format(other_player.get_hand_str(idx)))
-    print("-" * 30)
+    print("-" * 40)
     print("Your health: {0}     {1}'s health: {2}"
           .format(input_player.health, other_player.name, other_player.health))
 
