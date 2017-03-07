@@ -3,8 +3,12 @@
     by night5word and grammar_naz1
 """
 def choose_target(casting_player, other_player):
-    answer = input("Choose your target: s = self, o = opponent")
-    return casting_player
+    while True:
+        answer = input("Choose your target: s = self, o = opponent\n").lower()
+        if answer == "s":
+            return casting_player
+        elif answer == "o":
+            return other_player
 
 #Protection:
 def shield(casting_player, other_player):
