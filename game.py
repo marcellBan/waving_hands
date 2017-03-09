@@ -11,7 +11,8 @@ from spells import GESTURE_DICT, SPELL_DICT, EFFECT_DICT
 
 MAX_PRINTED_LINES = 10
 SPACING_BETWEEN_COLUMNS = 10
-MAX_GESTURE_DEATH = 8
+MAX_GESTURE_LENGTH = 8
+DIVIDER_WIDTH = 50
 
 
 def play_game():
@@ -24,22 +25,26 @@ def play_game():
     print("Second player:")
     player_two = Player(dcp(EFFECT_DICT))
     # main game loop
+    previous_turn_results = []
     while player_one.health > 0 and player_two.health > 0 and \
             not player_one.effects["surrender"] and not player_two.effects["surrender"]:
-        do_input(player_one, player_two)
-        do_input(player_two, player_one)
-        calc_turn_result(player_one, player_two)
+        do_input(player_one, player_two, previous_turn_results)
+        do_input(player_two, player_one, previous_turn_results)
+        previous_turn_results = calc_turn_result(player_one, player_two)
     do_game_end(player_one, player_two)
 
 
-def do_input(inputting_player, other_player):
+def do_input(inputting_player, other_player, previous_turn_results):
     """
-        gets a turn input from the player
+        gets a turn input from a player
     """
-    print_input_layout(inputting_player, other_player)
+    # print previous turns
+    print_input_layout(inputting_player, other_player, previous_turn_results)
+    # get valid input from player
+    print("Valid gesture format: X-Y | where X and Y are from [' ','stab','S','D','W','P','F','C']")
     gesture = input("Please enter your gesture for this turn: ")
     while not is_valid_gesture(gesture):
-        gesture = input("Gesture format: L-R\nPlease enter a valid gesture: ")
+        gesture = input("Please enter a valid gesture: ")
     inputting_player.add_hand(gesture)
 
 
@@ -56,42 +61,66 @@ def is_valid_gesture(gesture):
         "C"
     ]
     ges = gesture.split('-')
+    # exactly 2 hands?
     if len(ges) != 2:
         return False
-    if valid_gestures.count(ges[0]) == 0:
+    # valid gesture on each hand?
+    if ges[0] not in valid_gestures:
         return False
-    if valid_gestures.count(ges[1]) == 0:
+    if ges[1] not in valid_gestures:
         return False
     if ges[0] == 'C' or ges[1] == 'C':
         return ges[0] == ges[1]
     return True
 
 
-def print_input_layout(input_player, other_player):
+def print_input_layout(input_player, other_player, previous_turn_results):
     """
         clears the screen\n
+        prints the results of the previous turn\n
         prints the gestures from the previous turns\n
-        prints the players healths
+        prints the players' healths
     """
+    # calculate the number of turns to print
     gestures_to_print = min(len(input_player.hands), MAX_PRINTED_LINES)
+    # clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("     {0}          {1}".format(input_player.name, other_player.name)) # TODO spacing
+    # print previous turn results
+    print("The following happened in the last turn:")
+    # divider
+    print("-" * DIVIDER_WIDTH)
+    for item in previous_turn_results:
+        print(item)
+    print("These were the hands played in the previous turns:")
+    # divider
+    print("-" * DIVIDER_WIDTH)
+    # print header with names
+    print("     {0}{1}{2}".format(input_player.name, " " * SPACING_BETWEEN_COLUMNS,
+                                  other_player.name))
+    # print turns
     for i in range(gestures_to_print):
+        # calculate index to use
         idx = len(input_player.hands) - gestures_to_print + i
         input_hand = input_player.get_hand_str(idx)
-        if other_player.hands[idx][0] == "*":  # other player invisible
+        # other player invisible
+        if other_player.hands[idx][0] == "*":
             print("{1:2d}   {0}".format(input_hand, idx + 1) +
                   " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
                          len(input_hand)) +
                   "-----")
+        # other player visible
         else:
             print("{1:2d}   {0}".format(input_hand, idx + 1) +
                   " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
                          len(input_hand)) +
                   "{0}".format(other_player.get_hand_str(idx)))
-    print("-" * 40)
+    # divider
+    print("-" * DIVIDER_WIDTH)
+    # print both player's health
     print("Your health: {0}     {1}'s health: {2}"
           .format(input_player.health, other_player.name, other_player.health))
+    # divider
+    print("-" * DIVIDER_WIDTH)
 
 
 def calc_turn_result(p_one, p_two):
@@ -99,39 +128,152 @@ def calc_turn_result(p_one, p_two):
         calculates the results of the last turn
         and displays it
     """
+    # parse gestures
     parse_for_player(p_one)
     parse_for_player(p_two)
-    #TODO call spell functions
+    # cast spells
+    results = []
+    for spell in p_one.spell_to_cast:
+        results.append(SPELL_DICT[spell](p_one, p_two))
+    for spell in p_two.spell_to_cast:
+        results.append(SPELL_DICT[spell](p_two, p_one))
+    handle_effects(p_one, p_two)
+    return results
+
+
+def handle_effects(p_one, p_two):
+    """
+        calculatates the effect changes on the players
+    """
+    # disease effect
+    if p_one.effects["disease"] > 1:
+        p_one.effects["disease"] -= 1
+    elif p_one.effects["disease"] == 1:
+        p_one.health = 0
+    if p_two.effects["disease"] > 1:
+        p_two.effects["disease"] -= 1
+    elif p_two.effects["disease"] == 1:
+        p_two.health = 0
+    # poison effect
+    if p_one.effects["poison"] > 1:
+        p_one.effects["poison"] -= 1
+    elif p_one.effects["poison"] == 1:
+        p_one.health = 0
+    if p_two.effects["poison"] > 1:
+        p_two.effects["poison"] -= 1
+    elif p_two.effects["poison"] == 1:
+        p_two.health = 0
+    # protection from evil effect
+    if p_one.effects["protection_from_evil"] > 0:
+        p_one.effects["protection_from_evil"] -= 1
+    if p_two.effects["protection_from_evil"] > 0:
+        p_two.effects["protection_from_evil"] -= 1
 
 
 def parse_for_player(parsed_player):
     """
         parses the hands of the given player and marks the appropriate spell(s) for casting
     """
+    # clear last turn's spells
     parsed_player.spell_to_cast.clear()
+    left_hand = []
+    right_hand = []
     try:
-        for i in range(MAX_GESTURE_DEATH):
+        for i in range(MAX_GESTURE_LENGTH):
+            # get gestures from player object
             ges_l, ges_r = parsed_player.get_gesture(i + 1)
-            #TODO zip hands
-            ges_l_zip = ges_l
-            ges_r_zip = ges_r
+            # convert gestures to indicate double handed gestures in the last
+            # two places
+            last_index = -min(2, i + 1)
+            ges_l_zip = ges_l[:last_index]
+            ges_r_zip = ges_r[:last_index]
+            for left, right in zip(ges_l[last_index:], ges_r[last_index:]):
+                if left == right:
+                    ges_l_zip = "".join((ges_l_zip, "(", left.lower()))
+                    ges_r_zip = "".join((ges_r_zip, "(", left.lower()))
+                else:
+                    ges_l_zip = "".join((ges_l_zip, left))
+                    ges_r_zip = "".join((ges_r_zip, right))
+            # find spells in dictionary and add them to a list
             for key in GESTURE_DICT:
-                if key == ges_l_zip and parsed_player.spell_to_cast.count(GESTURE_DICT[key]) == 0:
-                    parsed_player.spell_to_cast.append(GESTURE_DICT[key])
-                if key == ges_r_zip and parsed_player.spell_to_cast.count(GESTURE_DICT[key]) == 0:
-                    parsed_player.spell_to_cast.append(GESTURE_DICT[key])
+                if (key == ges_l_zip or key == ges_l) and GESTURE_DICT[key] not in left_hand:
+                    left_hand.append(GESTURE_DICT[key])
+                if (key == ges_r_zip or key == ges_r) and GESTURE_DICT[key] not in right_hand:
+                    right_hand.append(GESTURE_DICT[key])
     except ValueError:
-        pass #TODO ????
+        pass
+    finally:
+        if "Surrender" in left_hand or "Surrender" in right_hand:
+            parsed_player.spell_to_cast.append("Surrender")
+        else:
+            resolve_conflicts(parsed_player, left_hand, right_hand)
+
+
+def resolve_conflicts(parsed_player, left_hand, right_hand):
+    """
+        resolve conflicts between to be casted spells
+    """
+    # multiple spells can be cast
+    if len(left_hand) > 1:
+        ask_player_which_spell_to_cast(parsed_player, left_hand, "left hand")
+    if len(right_hand) > 1:
+        ask_player_which_spell_to_cast(parsed_player, right_hand, "right hand")
+    # one spell has double handed finish
+    to_cast = dcp(left_hand)
+    to_cast.extend(right_hand)
+    for key, value in GESTURE_DICT.items():
+        if len(left_hand) != 0 and value == left_hand[0]  and \
+                key[-2:] in ["(f", "(p", "(s", "(w", "(d"]:
+            ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
+            break
+        if len(right_hand) != 0 and value == right_hand[0] and \
+                key[-2:] in ["(f", "(p", "(s", "(w", "(d"]:
+            ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
+            break
+    # mark spells to cast
+    parsed_player.spell_to_cast.extend(to_cast)
+
+
+def ask_player_which_spell_to_cast(player, spells, hand):
+    """
+        asks the player which spell do they want to cast with the given hand
+    """
+    # clear screen and print options
+    os.system('cls' if os.name == 'nt' else 'clear')
+    for idx, item in enumerate(spells):
+        print(str(idx + 1) + ". " + item)
+    # get input from player
+    pick = -1
+    while pick < 1 or pick > len(spells):
+        answer = input("{0}, which spell do you want to cast with your {1}?\n"
+                       .format(player.name, hand))
+        try:
+            pick = int(answer)
+        except ValueError:
+            pass
+    # save only the chosen spell
+    chosen_one = spells[pick - 1]
+    spells.clear()
+    spells.append(chosen_one)
 
 
 def do_game_end(p_one, p_two):
     """
         finishes a game
     """
-    if p_one.health <= 0:
+    # clear screen
+    os.system('cls' if os.name == 'nt' else 'clear')
+    # draw game
+    if p_one.health <= 0 and p_two.health <= 0:
+        print("It's a draw. Both players died.")
+    elif p_one.effects["surrender"] and p_two.effects["surrender"]:
+        print("It's a draw. Both players surrendered.")
+    # one of the players dies
+    elif p_one.health <= 0:
         print("{0} wins by killing {1}.".format(p_two.name, p_one.name))
     elif p_two.health <= 0:
         print("{0} wins by killing {1}.".format(p_one.name, p_two.name))
+    # one of the players
     elif p_one.effects["surrender"]:
         print("{0} surrenders. {1} wins.".format(p_one.name, p_two.name))
     elif p_two.effects["surrender"]:
@@ -140,14 +282,14 @@ def do_game_end(p_one, p_two):
 
 def main():
     """
-        main game logic
+        main program loop
     """
     running = True
     while running:
-        answer = input("Do you want to play? (Yes/No) ")
-        if answer.lower() == "yes" or answer.lower() == "y":
+        answer = input("Do you want to play? (Yes/No) ").lower()
+        if answer == "yes" or answer == "y":
             play_game()
-        elif answer.lower() == "no" or answer.lower() == "n":
+        elif answer == "no" or answer == "n":
             running = False
 
 main()
