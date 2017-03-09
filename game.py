@@ -24,20 +24,21 @@ def play_game():
     print("Second player:")
     player_two = Player(dcp(EFFECT_DICT))
     # main game loop
+    previous_turn_results = []
     while player_one.health > 0 and player_two.health > 0 and \
             not player_one.effects["surrender"] and not player_two.effects["surrender"]:
-        do_input(player_one, player_two)
-        do_input(player_two, player_one)
-        calc_turn_result(player_one, player_two)
+        do_input(player_one, player_two, previous_turn_results)
+        do_input(player_two, player_one, previous_turn_results)
+        previous_turn_results = calc_turn_result(player_one, player_two)
     do_game_end(player_one, player_two)
 
 
-def do_input(inputting_player, other_player):
+def do_input(inputting_player, other_player, previous_turn_results):
     """
         gets a turn input from a player
     """
     # print previous turns
-    print_input_layout(inputting_player, other_player)
+    print_input_layout(inputting_player, other_player, previous_turn_results)
     # get valid input from player
     gesture = input("Please enter your gesture for this turn: ")
     while not is_valid_gesture(gesture):
@@ -71,9 +72,10 @@ def is_valid_gesture(gesture):
     return True
 
 
-def print_input_layout(input_player, other_player):
+def print_input_layout(input_player, other_player, previous_turn_results):
     """
         clears the screen\n
+        prints the results of the previous turn\n
         prints the gestures from the previous turns\n
         prints the players healths
     """
@@ -81,6 +83,11 @@ def print_input_layout(input_player, other_player):
     gestures_to_print = min(len(input_player.hands), MAX_PRINTED_LINES)
     # clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
+    # print previous turn results
+    for item in previous_turn_results:
+        print(item)
+    # divider
+    print("-" * 40)
     # print header with names
     print("     {0}{2}{1}".format(input_player.name, other_player.name,
                                   " " * SPACING_BETWEEN_COLUMNS))
@@ -117,11 +124,13 @@ def calc_turn_result(p_one, p_two):
     parse_for_player(p_one)
     parse_for_player(p_two)
     # cast spells
+    results = []
     for spell in p_one.spell_to_cast:
-        SPELL_DICT[spell](p_one, p_two)
+        results.append(SPELL_DICT[spell](p_one, p_two))
     for spell in p_two.spell_to_cast:
-        SPELL_DICT[spell](p_two, p_one)
+        results.append(SPELL_DICT[spell](p_two, p_one))
     handle_effects(p_one, p_two)
+    return results
 
 
 def handle_effects(p_one, p_two):
@@ -240,6 +249,8 @@ def do_game_end(p_one, p_two):
     """
         finishes a game
     """
+    # clear screen
+    os.system('cls' if os.name == 'nt' else 'clear')
     # draw game
     if p_one.health <= 0 and p_two.health <= 0:
         print("It's a draw. Both players died.")
