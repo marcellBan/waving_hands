@@ -41,7 +41,7 @@ def shield(casting_player, other_player):
 def remove_enchantment(casting_player, other_player):
     """Remove Enchantment spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    if not check_counter_spell(chosen_player): #TODO untested
+    if not check_counter_spell(chosen_player):
 
         casting_player.effects["invisible"] = False
         casting_player.effects["protection_from_evil"] = 0
@@ -88,7 +88,6 @@ def dispel_magic(casting_player, other_player):
         other_player.effects["resist_cold"] = False
         other_player.effects["disease"] = False
         other_player.effects["poison"] = False
-        # TODO act like a Shield too (put Shield in spell_to_cast?)
         return casting_player.name + ": Dispel Magic used"
     return "Dispel Magic could not be casted from: " + casting_player.name
 
@@ -225,7 +224,7 @@ def disease(casting_player, other_player):
             and "Cure Heavy Wounds" not in other_player.spell_to_cast \
             and "Dispel Magic" not in other_player.spell_to_cast:
 
-        chosen_player.effects["disease"] = 6  # TODO really 6?
+        chosen_player.effects["disease"] = 6
         print("Disease given. Death is coming...")
     return "Disease casted on " + chosen_player.name
 
@@ -236,7 +235,7 @@ def poison(casting_player, other_player):
     if "Remove Enchantment" not in other_player.spell_to_cast \
             and "Dispel Magic" not in other_player.spell_to_cast:
 
-        chosen_player.effects["disease"] = 6  # TODO really 6?
+        chosen_player.effects["disease"] = 6
         print("Poison given. Death will be slow and painful...")
     return "Poison casted on " + chosen_player.name
 
@@ -251,7 +250,9 @@ def invisibility(casting_player, other_player):
 def stab(casting_player, other_player):
     """stab no-spell"""
     if "Shield" not in other_player.spell_to_cast \
-        and "Protection From Evil" not in other_player.spell_to_cast:
+        and "Protection From Evil" not in other_player.spell_to_cast \
+        and not check_counter_spell(other_player) \
+        and not check_dispel_magic(other_player):
 
         other_player.health -= 1
         return casting_player.name + " stabbed " + other_player.name
