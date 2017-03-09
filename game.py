@@ -79,7 +79,7 @@ def print_input_layout(input_player, other_player, previous_turn_results):
         clears the screen\n
         prints the results of the previous turn\n
         prints the gestures from the previous turns\n
-        prints the players healths
+        prints the players' healths
     """
     # calculate the number of turns to print
     gestures_to_print = min(len(input_player.hands), MAX_PRINTED_LINES)
@@ -203,7 +203,10 @@ def parse_for_player(parsed_player):
     except ValueError:
         pass
     finally:
-        resolve_conflicts(parsed_player, left_hand, right_hand)
+        if "Surrender" in left_hand or "Surrender" in right_hand:
+            parsed_player.spell_to_cast.append("Surrender")
+        else:
+            resolve_conflicts(parsed_player, left_hand, right_hand)
 
 
 def resolve_conflicts(parsed_player, left_hand, right_hand):
