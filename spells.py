@@ -303,7 +303,7 @@ def nothing(casting_player, other_player):
 def surrender(casting_player, other_player):
     """surrender spell"""
     casting_player.effects["surrender"] = True
-    return casting_player + " surrendered."
+    return casting_player.name + " surrendered."
 
 GESTURE_DICT = {
     # Protection:
