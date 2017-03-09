@@ -121,7 +121,36 @@ def calc_turn_result(p_one, p_two):
         SPELL_DICT[spell](p_one, p_two)
     for spell in p_two.spell_to_cast:
         SPELL_DICT[spell](p_two, p_one)
-    # TODO reset shields, decrease multi turn effects
+    handle_effects(p_one, p_two)
+
+
+def handle_effects(p_one, p_two):
+    """
+        calculatates the effect changes on the players
+    """
+    # disease effect
+    if p_one.effects["disease"] > 1:
+        p_one.effects["disease"] -= 1
+    elif p_one.effects["disease"] == 1:
+        p_one.health = 0
+    if p_two.effects["disease"] > 1:
+        p_two.effects["disease"] -= 1
+    elif p_two.effects["disease"] == 1:
+        p_two.health = 0
+    # poison effect
+    if p_one.effects["poison"] > 1:
+        p_one.effects["poison"] -= 1
+    elif p_one.effects["poison"] == 1:
+        p_one.health = 0
+    if p_two.effects["poison"] > 1:
+        p_two.effects["poison"] -= 1
+    elif p_two.effects["poison"] == 1:
+        p_two.health = 0
+    # protection from evil effect
+    if p_one.effects["protection_from_evil"] > 0:
+        p_one.effects["protection_from_evil"] -= 1
+    if p_two.effects["protection_from_evil"] > 0:
+        p_two.effects["protection_from_evil"] -= 1
 
 
 def parse_for_player(parsed_player):
