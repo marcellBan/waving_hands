@@ -12,6 +12,7 @@ from spells import GESTURE_DICT, SPELL_DICT, EFFECT_DICT
 MAX_PRINTED_LINES = 10
 SPACING_BETWEEN_COLUMNS = 10
 MAX_GESTURE_LENGTH = 8
+DIVIDER_WIDTH = 50
 
 
 def play_game():
@@ -40,9 +41,10 @@ def do_input(inputting_player, other_player, previous_turn_results):
     # print previous turns
     print_input_layout(inputting_player, other_player, previous_turn_results)
     # get valid input from player
+    print("Valid gesture format: X-Y | where X and Y are from [' ','stab','S','D','W','P','F','C']")
     gesture = input("Please enter your gesture for this turn: ")
     while not is_valid_gesture(gesture):
-        gesture = input("Gesture format: L-R\nPlease enter a valid gesture: ")
+        gesture = input("Please enter a valid gesture: ")
     inputting_player.add_hand(gesture)
 
 
@@ -84,13 +86,17 @@ def print_input_layout(input_player, other_player, previous_turn_results):
     # clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
     # print previous turn results
+    print("The following happened in the last turn:")
+    # divider
+    print("-" * DIVIDER_WIDTH)
     for item in previous_turn_results:
         print(item)
+    print("These were the hands played in the previous turns:")
     # divider
-    print("-" * 40)
+    print("-" * DIVIDER_WIDTH)
     # print header with names
-    print("     {0}{2}{1}".format(input_player.name, other_player.name,
-                                  " " * SPACING_BETWEEN_COLUMNS))
+    print("     {0}{1}{2}".format(input_player.name, " " * SPACING_BETWEEN_COLUMNS,
+                                  other_player.name))
     # print turns
     for i in range(gestures_to_print):
         # calculate index to use
@@ -109,10 +115,12 @@ def print_input_layout(input_player, other_player, previous_turn_results):
                          len(input_hand)) +
                   "{0}".format(other_player.get_hand_str(idx)))
     # divider
-    print("-" * 40)
+    print("-" * DIVIDER_WIDTH)
     # print both player's health
     print("Your health: {0}     {1}'s health: {2}"
           .format(input_player.health, other_player.name, other_player.health))
+    # divider
+    print("-" * DIVIDER_WIDTH)
 
 
 def calc_turn_result(p_one, p_two):
@@ -174,7 +182,8 @@ def parse_for_player(parsed_player):
         for i in range(MAX_GESTURE_LENGTH):
             # get gestures from player object
             ges_l, ges_r = parsed_player.get_gesture(i + 1)
-            # convert gestures to indicate double handed gestures in the last two places
+            # convert gestures to indicate double handed gestures in the last
+            # two places
             last_index = -min(2, i + 1)
             ges_l_zip = ges_l[:last_index]
             ges_r_zip = ges_r[:last_index]

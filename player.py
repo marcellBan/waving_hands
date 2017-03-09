@@ -20,7 +20,7 @@ class Player(object):
         """
             returns a string representing the players hand in the specified turn
         """
-        return "{0}-{1}-{2}".format(self.hands[idx][0], self.hands[idx][1], self.hands[idx][2])
+        return "{0}-{1}".format(self.hands[idx][1], self.hands[idx][2])
 
     def add_hand(self, gesture):
         """
