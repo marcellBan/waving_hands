@@ -157,7 +157,7 @@ def parse_for_player(parsed_player):
     """
         parses the hands of the given player and marks the appropriate spell(s) for casting
     """
-    # clear last turns spells
+    # clear last turn's spells
     parsed_player.spell_to_cast.clear()
     left_hand = []
     right_hand = []
@@ -178,9 +178,9 @@ def parse_for_player(parsed_player):
                     ges_r_zip = "".join((ges_r_zip, right))
             # find spells in dictionary and add them to a list
             for key in GESTURE_DICT:
-                if (key == ges_l_zip or key == ges_l) and key not in left_hand:
+                if (key == ges_l_zip or key == ges_l) and GESTURE_DICT[key] not in left_hand:
                     left_hand.append(GESTURE_DICT[key])
-                if (key == ges_r_zip or key == ges_r) and key not in right_hand:
+                if (key == ges_r_zip or key == ges_r) and GESTURE_DICT[key] not in right_hand:
                     right_hand.append(GESTURE_DICT[key])
     except ValueError:
         pass
@@ -198,7 +198,8 @@ def resolve_conflicts(parsed_player, left_hand, right_hand):
     if len(right_hand) > 1:
         ask_player_which_spell_to_cast(parsed_player, right_hand, "right hand")
     # one spell has double handed finish
-    to_cast = list(left_hand, right_hand)
+    to_cast = dcp(left_hand)
+    to_cast.extend(right_hand)
     for key, value in GESTURE_DICT.items():
         if len(left_hand) != 0 and value == left_hand[0]  and \
                 key[-2:] in ["(f", "(p", "(s", "(w", "(d"]:
