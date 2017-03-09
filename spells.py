@@ -51,11 +51,7 @@ def shield(casting_player, other_player):
 def remove_enchantment(casting_player, other_player):
     """Remove Enchantment spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-<< << << < HEAD
-    if not check_counter_spell(chosen_player):  # TODO untested
-== == == =
     if not check_counter_spell(chosen_player):
->>>>>> > norbi
 
         casting_player.effects["invisible"] = False
         casting_player.effects["protection_from_evil"] = 0
@@ -193,7 +189,8 @@ def cause_heavy_wounds(casting_player, other_player):
 def fireball(casting_player, other_player):
     """fireball spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    if not check_dispel_magic(chosen_player):
+    if not check_dispel_magic(chosen_player) \
+    and "Ice Storm" not in chosen_player.spell_to_cast:
         chosen_player.health -= 5
         return chosen_player.name + "received 5 damage from enemy wizard"
     return "Fireball could not be casted on " + chosen_player.name
@@ -217,7 +214,8 @@ def ice_storm(casting_player, other_player):  # TODO fireball counters it partia
     if not check_dispel_magic(other_player) and "Fire Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
             other_player.health -= 5
-
+            #casting_player only gets damage if enemy doesnt have fireball
+        if "Fireball" not in other_player.spell_to_cast: 
         casting_player.health -= 5
         return "Ice Storm casted by " + casting_player.name
 
@@ -225,8 +223,6 @@ def ice_storm(casting_player, other_player):  # TODO fireball counters it partia
         return "Ice Storm nullified"
 
 # Enchantment:
-
-
 def protection_from_evil(casting_player, other_player):
     """protection_from_evil spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
@@ -237,12 +233,14 @@ def protection_from_evil(casting_player, other_player):
 def resist_heat(casting_player, other_player):
     """resist_heat spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player.effects["resist_heat"] = True
     return "Resist Heat casted on " + chosen_player.name
 
 
 def resist_cold(casting_player, other_player):
     """resist_cold spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player.effects["resist_cold"] = True
     return "Resist Cold casted on " + chosen_player.name
 
 
@@ -250,12 +248,12 @@ def disease(casting_player, other_player):
     """disease spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
 
-    if "Remove Enchantment" not in other_player.spell_to_cast \
-            and "Cure Heavy Wounds" not in other_player.spell_to_cast \
-            and "Dispel Magic" not in other_player.spell_to_cast:
+    if "Remove Enchantment" not in chosen_player.spell_to_cast \
+        and not check_dispel_magic(chosen_player) \
+        and "Cure Heavy Wounds" not in chosen_player.spell_to_cast:
 
         chosen_player.effects["disease"] = 7
-        print("Disease given. Death is coming...")
+        return "Disease given to " + chosen_player.name+ ". Death is coming...")
     return "Disease casted on " + chosen_player.name
 
 
@@ -263,24 +261,24 @@ def poison(casting_player, other_player):
     """poison spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
 
-    if "Remove Enchantment" not in other_player.spell_to_cast \
-            and "Dispel Magic" not in other_player.spell_to_cast:
+    if "Remove Enchantment" not in chosen_player.spell_to_cast \
+        and not check_dispel_magic(chosen_player):
 
         chosen_player.effects["poison"] = 7
-        print("Poison given. Death will be slow and painful...")
+        return "Poison given to " + chosen_player.name + ". Death will be slow and painful...")
     return "Poison casted on " + chosen_player.name
 
 
 def invisibility(casting_player, other_player):
     """invisibility spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    # TODO what counters and/or stops this spell?
-    chosen_player.effects["invisible"] = True
-    return "Invisibility started on " + chosen_player.name
+    if not check_dispel_magic(chosen_player) \
+        and not check_counter_spell(chosen_player):
+        
+        chosen_player.effects["invisible"] = True
+        return chosen_player.name + " became invisible"
 
 # Non-spells
-
-
 def stab(casting_player, other_player):
     """stab no-spell"""
     if "Shield" not in other_player.spell_to_cast \
