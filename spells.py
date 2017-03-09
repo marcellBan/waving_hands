@@ -124,9 +124,10 @@ def missile(casting_player, other_player):
     chosen_player = check_magic_mirror(casting_player, other_player)
 
     if "Shield" not in chosen_player.spell_to_cast \
+        and "Protection From Evil" not in chosen_player.spell_to_cast\
         and not check_counter_spell(casting_player) \
         and not check_dispel_magic(casting_player):
-
+        
         chosen_player.health -= 1
         return "Missile succesfully hit " + chosen_player.name
 
@@ -203,6 +204,7 @@ def ice_storm(casting_player, other_player): #TODO fireball counters it partiall
 def protection_from_evil(casting_player, other_player):
     """protection_from_evil spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player.effects["protection_from_evil"] = 3
     return "Protection From Evil casted on " + chosen_player.name
 
 def resist_heat(casting_player, other_player):
@@ -248,7 +250,9 @@ def invisibility(casting_player, other_player):
 # Non-spells
 def stab(casting_player, other_player):
     """stab no-spell"""
-    if "Shield" not in other_player.spell_to_cast:
+    if "Shield" not in other_player.spell_to_cast \
+        and "Protection From Evil" not in other_player.spell_to_cast:
+
         other_player.health -= 1
         return casting_player.name + " stabbed " + other_player.name
     return casting_player.name + " could not stab " + other_player.name
