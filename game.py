@@ -7,7 +7,7 @@
 import os
 from copy import deepcopy as dcp
 from player import Player
-from spells import GESTURE_DICT, SPELL_DICT, EFFECT_DICT
+from spells import SPELL_DATA, EFFECT_DICT
 
 MAX_PRINTED_LINES = 10
 SPACING_BETWEEN_COLUMNS = 10
@@ -135,9 +135,13 @@ def calc_turn_result(p_one, p_two):
     # cast spells
     results = []
     for spell in p_one.spell_to_cast:
-        results.append(SPELL_DICT[spell](p_one, p_two))
+        for item in SPELL_DATA:
+            if item[0] == spell:
+                results.append(item[2](p_one, p_two))
     for spell in p_two.spell_to_cast:
-        results.append(SPELL_DICT[spell](p_two, p_one))
+        for item in SPELL_DATA:
+            if item[0] == spell:
+                results.append(item[2](p_one, p_two))
     handle_effects(p_one, p_two)
     return results
 
@@ -195,12 +199,12 @@ def parse_for_player(parsed_player):
                 else:
                     ges_l_zip = "".join((ges_l_zip, left))
                     ges_r_zip = "".join((ges_r_zip, right))
-            # find spells in dictionary and add them to a list
-            for key in GESTURE_DICT:
-                if (key == ges_l_zip or key == ges_l) and GESTURE_DICT[key] not in left_hand:
-                    left_hand.append(GESTURE_DICT[key])
-                if (key == ges_r_zip or key == ges_r) and GESTURE_DICT[key] not in right_hand:
-                    right_hand.append(GESTURE_DICT[key])
+            # find spells in spell list and add them to a separate list
+            for item in SPELL_DATA:
+                if (item[1] == ges_l_zip or item[1] == ges_l) and item[0] not in left_hand:
+                    left_hand.append(item[0])
+                if (item[1] == ges_r_zip or item[1] == ges_r) and item[0] not in right_hand:
+                    right_hand.append(item[0])
     except ValueError:
         pass
     finally:
@@ -222,13 +226,13 @@ def resolve_conflicts(parsed_player, left_hand, right_hand):
     # one spell has double handed finish
     to_cast = dcp(left_hand)
     to_cast.extend(right_hand)
-    for key, value in GESTURE_DICT.items():
-        if len(left_hand) != 0 and value == left_hand[0] and \
-                (key[-2:] in ["(f", "(p", "(s", "(w", "(d"] or key[-1] == 'C'):
+    for item in SPELL_DATA:
+        if len(left_hand) != 0 and item[0] == left_hand[0] and \
+                (item[1][-2:] in ["(f", "(p", "(s", "(w", "(d"] or item[1][-1] == 'C'):
             ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
             break
-        if len(right_hand) != 0 and value == right_hand[0] and \
-                (key[-2:] in ["(f", "(p", "(s", "(w", "(d"] or key[-1] == 'C'):
+        if len(right_hand) != 0 and item[0] == right_hand[0] and \
+                (item[1][-2:] in ["(f", "(p", "(s", "(w", "(d"] or item[1][-1] == 'C'):
             ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
             break
     # mark spells to cast

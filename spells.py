@@ -319,34 +319,34 @@ EFFECT_DICT = {
 
 SPELL_DATA = [
     # Protection:
-    ("Shield", "P", shield)
-    ("Remove Enchantment", "PDWP", remove_enchantment)
-    ("Magic Mirror", "C(w", magic_mirror)
-    ("Counter-Spell", "WPP", counter_spell)
-    ("Dispel Magic", "CDPW", dispel_magic)
-    ("Cure Light Wounds", "DFW", cure_light_wounds)
-    ("Cure Heavy Wounds", "DFPW", cure_heavy_wounds)
+    ("Shield", "P", shield),
+    ("Remove Enchantment", "PDWP", remove_enchantment),
+    ("Magic Mirror", "C(w", magic_mirror),
+    ("Counter-Spell", "WPP", counter_spell),
+    ("Dispel Magic", "CDPW", dispel_magic),
+    ("Cure Light Wounds", "DFW", cure_light_wounds),
+    ("Cure Heavy Wounds", "DFPW", cure_heavy_wounds),
 
     # Damaging:
-    ("Missile", "SD", missile)
-    ("Finger of Death", "PWPFSSSD", finger_of_death)
-    ("Lightning Bolt", "DFFDD", lightning_bolt)
-    ("Cause Light Wounds", "WFP", cause_light_wounds)
-    ("Cause Heavy Wounds", "WPFD", cause_heavy_wounds)
-    ("Fireball", "FSSDD", fireball)
-    ("Fire Storm", "SWWC", fire_storm)
-    ("Ice Storm", "WSSC", ice_storm)
+    ("Missile", "SD", missile),
+    ("Finger of Death", "PWPFSSSD", finger_of_death),
+    ("Lightning Bolt", "DFFDD", lightning_bolt),
+    ("Cause Light Wounds", "WFP", cause_light_wounds),
+    ("Cause Heavy Wounds", "WPFD", cause_heavy_wounds),
+    ("Fireball", "FSSDD", fireball),
+    ("Fire Storm", "SWWC", fire_storm),
+    ("Ice Storm", "WSSC", ice_storm),
 
     # Enchantment:
-    ("Protection From Evil", "WWP", protection_from_evil)
-    ("Resist Heat", "WWFP", resist_heat)
-    ("Resist Cold", "SSFP", resist_cold)
-    ("Disease", "DSFFFC", disease)
-    ("Poison", "DWWFWD", poison)
-    ("Invisibility", "PP(w(s", invisibility)
+    ("Protection From Evil", "WWP", protection_from_evil),
+    ("Resist Heat", "WWFP", resist_heat),
+    ("Resist Cold", "SSFP", resist_cold),
+    ("Disease", "DSFFFC", disease),
+    ("Poison", "DWWFWD", poison),
+    ("Invisibility", "PP(w(s", invisibility),
 
     # Non-spells
-    ("Stab", "stab", stab)
-    ("Nothing", " ", nothing)
-    ("Surrender", "(p", surrender)
+    ("Stab", "stab", stab),
+    ("Nothing", " ", nothing),
+    ("Surrender", "(p", surrender),
 ]
