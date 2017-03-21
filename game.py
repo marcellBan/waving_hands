@@ -141,7 +141,7 @@ def calc_turn_result(p_one, p_two):
     for spell in p_two.spell_to_cast:
         for item in SPELL_DATA:
             if item[0] == spell:
-                results.append(item[2](p_one, p_two))
+                results.append(item[2](p_two, p_one))
     handle_effects(p_one, p_two)
     return results
 
