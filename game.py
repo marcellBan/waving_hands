@@ -41,10 +41,11 @@ def do_input(inputting_player, other_player, previous_turn_results):
     # print previous turns
     print_input_layout(inputting_player, other_player, previous_turn_results)
     # get valid input from player
-    print("Valid gesture format: X-Y | where X and Y are from [' ','stab','S','D','W','P','F','C']")
-    gesture = input("Please enter your gesture for this turn: ")
+    print(
+        "Valid gesture format: X-Y | where X and Y are from [' ','stab','S','D','W','P','F','C']")
+    gesture = input(inputting_player.name + ", please enter your gesture for this turn: ")
     while not is_valid_gesture(gesture):
-        gesture = input("Please enter a valid gesture: ")
+        gesture = input(inputting_player.name + ", please enter a valid gesture: ")
     inputting_player.add_hand(gesture)
 
 
@@ -188,7 +189,7 @@ def parse_for_player(parsed_player):
             ges_l_zip = ges_l[:last_index]
             ges_r_zip = ges_r[:last_index]
             for left, right in zip(ges_l[last_index:], ges_r[last_index:]):
-                if left == right:
+                if left == right and left != 'C':
                     ges_l_zip = "".join((ges_l_zip, "(", left.lower()))
                     ges_r_zip = "".join((ges_r_zip, "(", left.lower()))
                 else:
@@ -222,12 +223,12 @@ def resolve_conflicts(parsed_player, left_hand, right_hand):
     to_cast = dcp(left_hand)
     to_cast.extend(right_hand)
     for key, value in GESTURE_DICT.items():
-        if len(left_hand) != 0 and value == left_hand[0]  and \
-                key[-2:] in ["(f", "(p", "(s", "(w", "(d"]:
+        if len(left_hand) != 0 and value == left_hand[0] and \
+                (key[-2:] in ["(f", "(p", "(s", "(w", "(d"] or key[-1] == 'C'):
             ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
             break
         if len(right_hand) != 0 and value == right_hand[0] and \
-                key[-2:] in ["(f", "(p", "(s", "(w", "(d"]:
+                (key[-2:] in ["(f", "(p", "(s", "(w", "(d"] or key[-1] == 'C'):
             ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
             break
     # mark spells to cast

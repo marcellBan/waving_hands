@@ -28,7 +28,7 @@ class Player(object):
         """
         ges = gesture.split('-')
         self.hands.append(
-            ('*' if self.effects["invisible"] > 0 else '_', ges[0], ges[1]))
+            ('*' if self.effects["invisible"] else '_', ges[0], ges[1]))
 
     def get_gesture(self, length):
         """
