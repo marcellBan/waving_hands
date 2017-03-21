@@ -305,73 +305,6 @@ def surrender(casting_player, other_player):
     casting_player.effects["surrender"] = True
     return casting_player.name + " surrendered."
 
-GESTURE_DICT = {
-    # Protection:
-    "P": "Shield",
-    "PDWP": "Remove Enchantment",
-    "C(w": "Magic Mirror",
-    "WPP": "Counter-Spell",
-    "CDPW": "Dispel Magic",
-    "DFW": "Cure Light Wounds",
-    "DFPW": "Cure Heavy Wounds",
-
-    # Damaging:
-    "SD":       "Missile",
-    "PWPFSSSD": "Finger of Death",
-    "DFFDD":    "Lightning Bolt",
-    "WFP":      "Cause Light Wounds",
-    "WPFD":     "Cause Heavy Wounds",
-    "FSSDD":    "Fireball",
-    "SWWC":     "Fire Storm",
-    "WSSC":     "Ice Storm",
-
-    # Enchantment:
-    "WWP":      "Protection From Evil",
-    "WWFP":     "Resist Heat",
-    "SSFP":     "Resist Cold",
-    "DSFFFC":   "Disease",
-    "DWWFWD":   "Poison",
-    "PP(w(s":   "Invisibility",
-
-    # Non-spells
-    "stab":     "Stab",
-    " ":        "Nothing",
-    "(p":       "Surrender"
-}
-
-SPELL_DICT = {
-    # Protection:
-    "Shield": shield,
-    "Remove Enchantment": remove_enchantment,
-    "Magic Mirror": magic_mirror,
-    "Counter-Spell": counter_spell,
-    "Dispel Magic": dispel_magic,
-    "Cure Light Wounds": cure_light_wounds,
-    "Cure Heavy Wounds": cure_heavy_wounds,
-
-    # Damaging:
-    "Missile": missile,
-    "Finger of Death": finger_of_death,
-    "Lightning Bolt": lightning_bolt,
-    "Cause Light Wounds": cause_light_wounds,
-    "Cause Heavy Wounds": cause_heavy_wounds,
-    "Fireball": fireball,
-    "Fire Storm": fire_storm,
-    "Ice Storm": ice_storm,
-
-    # Enchantment:
-    "Protection From Evil": protection_from_evil,
-    "Resist Heat": resist_heat,
-    "Resist Cold": resist_cold,
-    "Disease": disease,
-    "Poison": poison,
-    "Invisibility": invisibility,
-
-    # Non-spells
-    "Stab": stab,
-    "Nothing": nothing,
-    "Surrender": surrender
-}
 
 EFFECT_DICT = {
     # effects:
@@ -383,3 +316,37 @@ EFFECT_DICT = {
     "resist_cold": False,
     "poison": 0
 }
+
+SPELL_DATA = [
+    # Protection:
+    ("Shield", "P", shield)
+    ("Remove Enchantment", "PDWP", remove_enchantment)
+    ("Magic Mirror", "C(w", magic_mirror)
+    ("Counter-Spell", "WPP", counter_spell)
+    ("Dispel Magic", "CDPW", dispel_magic)
+    ("Cure Light Wounds", "DFW", cure_light_wounds)
+    ("Cure Heavy Wounds", "DFPW", cure_heavy_wounds)
+
+    # Damaging:
+    ("Missile", "SD", missile)
+    ("Finger of Death", "PWPFSSSD", finger_of_death)
+    ("Lightning Bolt", "DFFDD", lightning_bolt)
+    ("Cause Light Wounds", "WFP", cause_light_wounds)
+    ("Cause Heavy Wounds", "WPFD", cause_heavy_wounds)
+    ("Fireball", "FSSDD", fireball)
+    ("Fire Storm", "SWWC", fire_storm)
+    ("Ice Storm", "WSSC", ice_storm)
+
+    # Enchantment:
+    ("Protection From Evil", "WWP", protection_from_evil)
+    ("Resist Heat", "WWFP", resist_heat)
+    ("Resist Cold", "SSFP", resist_cold)
+    ("Disease", "DSFFFC", disease)
+    ("Poison", "DWWFWD", poison)
+    ("Invisibility", "PP(w(s", invisibility)
+
+    # Non-spells
+    ("Stab", "stab", stab)
+    ("Nothing", " ", nothing)
+    ("Surrender", "(p", surrender)
+]
