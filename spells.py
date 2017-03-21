@@ -3,8 +3,6 @@
     by night5word and grammar_naz1
 """
 
-# pylint: disable=w0613
-
 
 def choose_target(casting_player, other_player):
     """prompt player to choose target"""
@@ -44,7 +42,7 @@ def check_dispel_magic(player):
 
 
 def shield(casting_player, other_player):
-    """shield spell"""
+    """Shield spell"""
     return casting_player.name + ": Shield activated"
 
 
@@ -64,7 +62,7 @@ def remove_enchantment(casting_player, other_player):
 
 
 def magic_mirror(casting_player, other_player):
-    """magic mirror spell"""
+    """Magic Mirror spell"""
     if not check_counter_spell(other_player) \
             and not check_dispel_magic(other_player) \
             and "Fire Storm" not in other_player.spell_to_cast \
@@ -74,7 +72,7 @@ def magic_mirror(casting_player, other_player):
 
 
 def counter_spell(casting_player, other_player):
-    """counter_spell spell"""
+    """Counter Spell spell"""
     if not check_dispel_magic(other_player) \
             and "Finger of Death" not in other_player.spell_to_cast:
         return casting_player.name + ": Counter Spell used"
@@ -82,7 +80,7 @@ def counter_spell(casting_player, other_player):
 
 
 def dispel_magic(casting_player, other_player):
-    """dispel_magic spell"""
+    """Dispel Magic spell"""
     if "Surrender" not in other_player.spell_to_cast \
             and "Stab" not in other_player.spell_to_cast:
 
@@ -103,8 +101,13 @@ def dispel_magic(casting_player, other_player):
     return "Dispel Magic could not be casted by " + casting_player.name
 
 
+def raise_dead(casting_player, other_player):
+    """Raise Dead spell"""
+    pass
+
+
 def cure_light_wounds(casting_player, other_player):
-    """cure_light_wounds spell"""
+    """Cure Light Wounds spell"""
     if casting_player.health < 15:
         casting_player.health += 1
         return casting_player.name + ": Restored 1 hp"
@@ -114,7 +117,7 @@ def cure_light_wounds(casting_player, other_player):
 
 
 def cure_heavy_wounds(casting_player, other_player):
-    """cure_heavy_wounds spell"""
+    """Cure Heavy Wounds spell"""
     if casting_player.health < 14:
         casting_player.health += 2
         restored = casting_player.name + ": Restored 2 hp, "
@@ -134,7 +137,7 @@ def cure_heavy_wounds(casting_player, other_player):
 
 
 def missile(casting_player, other_player):
-    """missile spell"""
+    """Missile spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
 
     if "Shield" not in chosen_player.spell_to_cast \
@@ -149,7 +152,7 @@ def missile(casting_player, other_player):
 
 
 def finger_of_death(casting_player, other_player):
-    """finger_of_death spell"""
+    """Finger of Death spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
 
     if not check_dispel_magic(chosen_player):
@@ -160,7 +163,7 @@ def finger_of_death(casting_player, other_player):
 
 
 def lightning_bolt(casting_player, other_player):
-    """lightning_bolt spell"""
+    """Lightning Bolt spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 5
@@ -169,7 +172,7 @@ def lightning_bolt(casting_player, other_player):
 
 
 def cause_light_wounds(casting_player, other_player):
-    """cause_light_wounds spell"""
+    """Cause Light Wounds spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 2
@@ -178,7 +181,7 @@ def cause_light_wounds(casting_player, other_player):
 
 
 def cause_heavy_wounds(casting_player, other_player):
-    """cause_heavy_wounds spell"""
+    """Cause Heavy Wounds spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 3
@@ -187,7 +190,7 @@ def cause_heavy_wounds(casting_player, other_player):
 
 
 def fireball(casting_player, other_player):
-    """fireball spell"""
+    """Fireball spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     if not check_dispel_magic(chosen_player) \
             and "Ice Storm" not in chosen_player.spell_to_cast:
@@ -197,7 +200,7 @@ def fireball(casting_player, other_player):
 
 
 def fire_storm(casting_player, other_player):
-    """fire_storm spell"""
+    """Fire Storm spell"""
     if not check_dispel_magic(other_player) and "Ice Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
             other_player.health -= 5
@@ -210,7 +213,7 @@ def fire_storm(casting_player, other_player):
 
 
 def ice_storm(casting_player, other_player):
-    """ice_storm spell"""
+    """Ice Storm spell"""
     if not check_dispel_magic(other_player) and "Fire Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
             other_player.health -= 5
@@ -225,29 +228,59 @@ def ice_storm(casting_player, other_player):
 # Enchantment:
 
 
+def amnesia(casting_player, other_player):
+    """Amnesia spell"""
+    pass
+
+
+def confusion(casting_player, other_player):
+    """Confusion spell"""
+    pass
+
+
+def charm_person(casting_player, other_playe):
+    """Charm Person spell"""
+    pass
+
+
+def paralysis(casting_player, other_player):
+    """Paralysis spell"""
+    pass
+
+
+def fear(casting_player, other_player):
+    """Fear spell"""
+    pass
+
+
+def anti_spell(casting_player, other_player):
+    """Anti-spell spell"""
+    pass
+
+
 def protection_from_evil(casting_player, other_player):
-    """protection_from_evil spell"""
+    """Protection From Evil spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     chosen_player.effects["protection_from_evil"] = 3
     return "Protection From Evil casted on " + chosen_player.name
 
 
 def resist_heat(casting_player, other_player):
-    """resist_heat spell"""
+    """Resist Heat spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     chosen_player.effects["resist_heat"] = True
     return "Resist Heat casted on " + chosen_player.name
 
 
 def resist_cold(casting_player, other_player):
-    """resist_cold spell"""
+    """Resist Cold spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     chosen_player.effects["resist_cold"] = True
     return "Resist Cold casted on " + chosen_player.name
 
 
 def disease(casting_player, other_player):
-    """disease spell"""
+    """Disease spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
 
     if "Remove Enchantment" not in chosen_player.spell_to_cast \
@@ -260,7 +293,7 @@ def disease(casting_player, other_player):
 
 
 def poison(casting_player, other_player):
-    """poison spell"""
+    """Poison spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
 
     if "Remove Enchantment" not in chosen_player.spell_to_cast \
@@ -271,8 +304,13 @@ def poison(casting_player, other_player):
     return "Poison casted on " + chosen_player.name
 
 
+def blindness(casting_player, other_player):
+    """Blindness spell"""
+    pass
+
+
 def invisibility(casting_player, other_player):
-    """invisibility spell"""
+    """Invisibility spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
     if not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
@@ -280,11 +318,32 @@ def invisibility(casting_player, other_player):
         chosen_player.effects["invisible"] = True
         return chosen_player.name + " became invisible"
 
+
+def haste(casting_player, other_player):
+    """Haste spell"""
+    pass
+
+
+def time_stop(casting_player, other_player):
+    """Time Stop spell"""
+    pass
+
+
+def delayed_effect(casting_player, other_player):
+    """Delayed Effect spell"""
+    pass
+
+
+def permanency(casting_player, other_player):
+    """Permanency spell"""
+    pass
+
+
 # Non-spells
 
 
 def stab(casting_player, other_player):
-    """stab no-spell"""
+    """Stab no-spell"""
     if "Shield" not in other_player.spell_to_cast \
             and "Protection From Evil" not in other_player.spell_to_cast \
             and not check_counter_spell(other_player) \
@@ -296,12 +355,12 @@ def stab(casting_player, other_player):
 
 
 def nothing(casting_player, other_player):
-    """nothing no-spell"""
+    """Nothing no-spell"""
     return casting_player.name + " did nothing"
 
 
 def surrender(casting_player, other_player):
-    """surrender spell"""
+    """Surrender no-spell"""
     casting_player.effects["surrender"] = True
     return casting_player.name + " surrendered."
 
@@ -322,8 +381,9 @@ SPELL_DATA = [
     ("Shield", "P", shield),
     ("Remove Enchantment", "PDWP", remove_enchantment),
     ("Magic Mirror", "C(w", magic_mirror),
-    ("Counter-Spell", "WPP", counter_spell),
+    ("Counter Spell", "WPP", counter_spell),
     ("Dispel Magic", "CDPW", dispel_magic),
+    ("Raise Dead", "D-W-W-F-W-C", raise_dead),
     ("Cure Light Wounds", "DFW", cure_light_wounds),
     ("Cure Heavy Wounds", "DFPW", cure_heavy_wounds),
 
@@ -338,12 +398,23 @@ SPELL_DATA = [
     ("Ice Storm", "WSSC", ice_storm),
 
     # Enchantment:
+    ("Amnesia", "DPP", amnesia),
+    ("Confusion", "DSF", confusion),
+    ("Charm Person", "PSDF", charm_person),
+    ("Paralysis", "FFF", paralysis),
+    ("Fear", "SWD", fear),
+    ("Anti-spell", "SPF", anti_spell),
     ("Protection From Evil", "WWP", protection_from_evil),
     ("Resist Heat", "WWFP", resist_heat),
     ("Resist Cold", "SSFP", resist_cold),
     ("Disease", "DSFFFC", disease),
     ("Poison", "DWWFWD", poison),
+    ("Blindness", "DWFF(d", blindness),
     ("Invisibility", "PP(w(s", invisibility),
+    ("Haste", "PWPWWC", haste),
+    ("Time Stop", "SPPC", time_stop),
+    ("Delayed Effect", "DWSSSP", delayed_effect),
+    ("Permanency", "SPFPSDW", permanency),
 
     # Non-spells
     ("Stab", "stab", stab),
