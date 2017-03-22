@@ -44,11 +44,16 @@ def check_remove_enchantment(player):
     return False
 
 
-def get_visible_results(casting_player, other_player, spell_result):
-    if casting_player.effects["invisible"] \
-            or other_player.effects["Blindness"] > 0:
+def get_visible_results(casting_player, other_player, spell_result, always_visible=False, target_player=None):
+    if (casting_player.effects["invisible"] or
+            other_player.effects["Blindness"] > 0) \
+            and (not always_visible and target_player != other_player):
         spell_result[1] = ""
-    
+    if casting_player.effects["Blindness"] > 0 \
+            and target_player == other_player:
+        spell_result[0] = ""
+    return tuple(spell_result)
+
 
 # Protection:
 
