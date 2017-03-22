@@ -46,7 +46,7 @@ def do_input(inputting_player, other_player, previous_turn_results):
     gesture = input(inputting_player.name + ", please enter your gesture for this turn: ")
     while not is_valid_gesture(gesture):
         gesture = input(inputting_player.name + ", please enter a valid gesture: ")
-    inputting_player.add_hand(gesture)
+    inputting_player.add_hand(gesture, other_player.effects["Blindness"] > 0)
 
 
 def is_valid_gesture(gesture):

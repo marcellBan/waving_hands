@@ -22,13 +22,13 @@ class Player(object):
         """
         return "{0}-{1}".format(self.hands[idx][1], self.hands[idx][2])
 
-    def add_hand(self, gesture):
+    def add_hand(self, gesture, other_player_blind=False):
         """
             adds a hand to the list of hands
         """
         ges = gesture.split('-')
         self.hands.append(
-            ('*' if self.effects["invisible"] else '_', ges[0], ges[1]))
+            ('*' if self.effects["invisible"] or other_player_blind else '_', ges[0], ges[1]))
 
     def get_gesture(self, length):
         """

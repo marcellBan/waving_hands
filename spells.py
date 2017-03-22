@@ -60,22 +60,26 @@ def get_visible_results(casting_player, other_player, spell_result, always_visib
 
 def shield(casting_player, other_player):
     """Shield spell"""
-    return casting_player.name + ": Shield activated"
+    res = [casting_player.name + ": Shield activated"] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def remove_enchantment(casting_player, other_player):
     """Remove Enchantment spell"""
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_counter_spell(chosen_player):
-
         casting_player.effects["invisible"] = False
         casting_player.effects["protection_from_evil"] = 0
         casting_player.effects["resist_heat"] = False
         casting_player.effects["resist_cold"] = False
         casting_player.effects["disease"] = False
         casting_player.effects["poison"] = False
-        return "Effects and enchantments are removed from: " + chosen_player.name
-    return "Effects and enchantments could no be removed from: " + chosen_player.name
+        res = ["Effects and enchantments are removed from: " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Effects and enchantments could no be removed from: " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def magic_mirror(casting_player, other_player):
@@ -84,38 +88,40 @@ def magic_mirror(casting_player, other_player):
             and not check_dispel_magic(other_player) \
             and "Fire Storm" not in other_player.spell_to_cast \
             and "Ice Storm" not in other_player.spell_to_cast:
-
-        return casting_player.name + ": Magic Mirror used"
+        res = [casting_player.name + ": Magic Mirror used"] * 2
+    else:
+        res = ["Magic Mirror could not be cast by: " + casting_player.name] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def counter_spell(casting_player, other_player):
     """Counter Spell spell"""
-    if not check_dispel_magic(other_player) \
-            and "Finger of Death" not in other_player.spell_to_cast:
-        return casting_player.name + ": Counter Spell used"
-    return "Counter spell could no be casted by " + casting_player.name
+    if not check_dispel_magic(other_player):
+        res = [casting_player.name + ": Counter Spell used"] * 2
+    else:
+        res = ["Counter spell could no be casted by " + casting_player.name] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def dispel_magic(casting_player, other_player):
     """Dispel Magic spell"""
-    if "Surrender" not in other_player.spell_to_cast \
-            and "Stab" not in other_player.spell_to_cast:
-
-        casting_player.effects["invisible"] = False
-        casting_player.effects["protection_from_evil"] = 0
-        casting_player.effects["resist_heat"] = False
-        casting_player.effects["resist_cold"] = False
-        casting_player.effects["disease"] = False
-        casting_player.effects["poison"] = False
-        # other player
-        other_player.effects["invisible"] = False
-        other_player.effects["protection_from_evil"] = 0
-        other_player.effects["resist_heat"] = False
-        other_player.effects["resist_cold"] = False
-        other_player.effects["disease"] = False
-        other_player.effects["poison"] = False
-        return casting_player.name + ": Dispel Magic used"
-    return "Dispel Magic could not be casted by " + casting_player.name
+    casting_player.effects["invisible"] = False
+    casting_player.effects["protection_from_evil"] = 0
+    casting_player.effects["resist_heat"] = False
+    casting_player.effects["resist_cold"] = False
+    casting_player.effects["disease"] = False
+    casting_player.effects["poison"] = False
+    casting_player.effects["Blindness"] = 0
+    # other player
+    other_player.effects["invisible"] = False
+    other_player.effects["protection_from_evil"] = 0
+    other_player.effects["resist_heat"] = False
+    other_player.effects["resist_cold"] = False
+    other_player.effects["disease"] = False
+    other_player.effects["poison"] = False
+    other_player.effects["Blindness"] = 0
+    res = [casting_player.name + ": Dispel Magic casted"] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def raise_dead(casting_player, other_player):  # TODO implement
@@ -137,28 +143,25 @@ def cure_light_wounds(casting_player, other_player):
     """Cure Light Wounds spell"""
     if casting_player.health < 15:
         casting_player.health += 1
-        return casting_player.name + ": Restored 1 hp"
-
+        res = [casting_player.name + ": Restored 1 hp"] * 2
     else:
-        return "Cure wasted: nothing to cure on " + casting_player.name
+        res = ["Cure wasted: nothing to cure on " + casting_player.name] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def cure_heavy_wounds(casting_player, other_player):
     """Cure Heavy Wounds spell"""
     if casting_player.health < 14:
         casting_player.health += 2
-        restored = casting_player.name + ": Restored 2 hp, "
-
+        casting_player.effects["disease"] = False
+        res = [casting_player.name + ": Restored 2 hp, disease effect removed."] * 2
     elif casting_player.health == 14:
         casting_player.health += 1
-        restored = casting_player.name + ": Restored 1 hp, "
-
+        casting_player.effects["disease"] = False
+        res = [casting_player.name + ": Restored 1 hp, disease effect removed."] * 2
     else:
-        return "Cure wasted: nothing to cure on " + casting_player.name
-
-    casting_player.effects["disease"] = False
-    restored += "Disease effect removed"
-    return restored
+        res = ["Cure wasted: nothing to cure on " + casting_player.name] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 # Damaging:
 
@@ -166,27 +169,31 @@ def cure_heavy_wounds(casting_player, other_player):
 def missile(casting_player, other_player):
     """Missile spell"""
     chosen_player = choose_target_player(casting_player, other_player)
-
     if "Shield" not in chosen_player.spell_to_cast \
             and "Protection From Evil" not in chosen_player.spell_to_cast\
             and not check_counter_spell(other_player) \
-            and not check_dispel_magic(other_player):
+            and not check_dispel_magic(other_player):  # TODO pfe check other.effect for pfe > 0
         chosen_player.health -= 1
-        return "Missile succesfully hit " + chosen_player.name
-
+        res = ["Missile succesfully hit " + chosen_player.name] * 2
+        vis = True
     else:
-        return "Missile thwarted"
+        res = ["Missile thwarted"] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def finger_of_death(casting_player, other_player):
     """Finger of Death spell"""
     chosen_player = choose_target_player(casting_player, other_player)
-
     if not check_dispel_magic(chosen_player):
         chosen_player.health = 0
-        return "Wizard " + chosen_player.name + \
-            " got brutally fingered and died in a very painful way..."
-    return "Finger of Death could not be casted on " + chosen_player.name
+        res = ["Wizard " + chosen_player.name +
+               " got brutally fingered and died in a very painful way..."] * 2
+        vis = True
+    else:
+        res = ["Finger of Death could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def lightning_bolt(casting_player, other_player):
@@ -194,8 +201,12 @@ def lightning_bolt(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 5
-        return chosen_player.name + "received 5 damage from enemy wizard"
-    return "Lightning Bolt could not be casted on " + chosen_player.name
+        res = [chosen_player.name + "received 5 damage from " + casting_player.name] * 2
+        vis = True
+    else:
+        res = ["Lightning Bolt could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def cause_light_wounds(casting_player, other_player):
@@ -203,8 +214,12 @@ def cause_light_wounds(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 2
-        return chosen_player.name + "received 2 damage from enemy wizard"
-    return "Cause Light Wounds could not be casted on " + chosen_player.name
+        res = [chosen_player.name + "received 2 damage from " + casting_player.name] * 2
+        vis = True
+    else:
+        res = ["Cause Light Wounds could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def cause_heavy_wounds(casting_player, other_player):
@@ -212,8 +227,12 @@ def cause_heavy_wounds(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 3
-        return chosen_player.name + "received 3 damage from enemy wizard"
-    return "Cause Heavy Wounds could not be casted on " + chosen_player.name
+        res = [chosen_player.name + "received 3 damage from " + casting_player.name] * 2
+        vis = True
+    else:
+        res = ["Cause Heavy Wounds could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def fireball(casting_player, other_player):
@@ -222,8 +241,12 @@ def fireball(casting_player, other_player):
     if not check_dispel_magic(chosen_player) \
             and "Ice Storm" not in chosen_player.spell_to_cast:
         chosen_player.health -= 5
-        return chosen_player.name + "received 5 damage from enemy wizard"
-    return "Fireball could not be casted on " + chosen_player.name
+        res = [chosen_player.name + "received 5 damage from " + casting_player.name] * 2
+        vis = True
+    else:
+        res = ["Fireball could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def fire_storm(casting_player, other_player):
@@ -231,12 +254,13 @@ def fire_storm(casting_player, other_player):
     if not check_dispel_magic(other_player) and "Ice Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
             other_player.health -= 5
-
         casting_player.health -= 5
-        return "Fire Storm casted by " + casting_player.name
-
+        res = ["Fire Storm casted by " + casting_player.name] * 2
+        vis = True
     else:
-        return "Fire Storm nullified"
+        res = ["Fire Storm nullified"] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
 def ice_storm(casting_player, other_player):
@@ -244,13 +268,15 @@ def ice_storm(casting_player, other_player):
     if not check_dispel_magic(other_player) and "Fire Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
             other_player.health -= 5
-            # casting_player only gets damage if enemy doesnt have fireball
+            # casting_player only gets damage if enemy doesn't have fireball
         if "Fireball" not in other_player.spell_to_cast:
             casting_player.health -= 5
-        return "Ice Storm casted by " + casting_player.name
-
+        res = ["Ice Storm casted by " + casting_player.name] * 2
+        vis = True
     else:
-        return "Ice Storm nullified"
+        res = ["Ice Storm nullified"] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis)
 
 # Enchantment:
 
@@ -261,9 +287,14 @@ def amnesia(casting_player, other_player):
     attack whoever it attacked this turn. If the subject is simultaneously the subject of any of
     confusion, charm person, charm monster, paralysis or fear then none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Amnesia"] = True  # TODO is bool enough? Activates next round
-        return "Amnesia casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):  # TODO dispel magic and counter-spell cancel this
+        chosen_player.effects["Amnesia"] = True
+        res = ["Amnesia casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Amnesia could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def confusion(casting_player, other_player):
@@ -275,9 +306,14 @@ def confusion(casting_player, other_player):
     If the subject is also the subject of any of: amnesia, charm person, charm monster, paralysis
     or fear, none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Confusion"] = True  # TODO is bool enough? Activates next round
-        return "Confusion casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):  # TODO dispel magic and counter-spell cancel this
+        chosen_player.effects["Confusion"] = True
+        res = ["Confusion casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Confusion could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def charm_person(casting_player, other_playe):
@@ -289,9 +325,14 @@ def charm_person(casting_player, other_playe):
     down his opponent's gesture. If the subject is also the subject of any of amnesia, confusion,
     charm monster, paralysis or fear, none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Charm Person"] = True  # TODO is bool enough? Activates next round
-        return "Charm Person casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):  # TODO dispel magic and counter-spell cancel this
+        chosen_player.effects["Charm Person"] = True
+        res = ["Charm Person casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Charm Person could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_playe, res, vis, chosen_player)
 
 
 def paralysis(casting_player, other_player):
@@ -308,9 +349,14 @@ def paralysis(casting_player, other_player):
     If the subject of the spell is also the subject of any of amnesia, confusion, charm person,
     charm monster or fear, none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Paralysis"] = True  # TODO is bool enough? Activates next round
-        return "Paralysis casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):  # TODO dispel magic and counter-spell cancel this
+        chosen_player.effects["Paralysis"] = True
+        res = ["Paralysis casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Paralysis could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def fear(casting_player, other_player):
@@ -320,9 +366,14 @@ def fear(casting_player, other_player):
     amnesia, confusion, charm person, charm monster or paralysis, then
     none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Fear"] = True  # TODO is bool enough? Activates next round
-        return "Fear casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):  # TODO dispel magic and counter-spell cancel this
+        chosen_player.effects["Fear"] = True
+        res = ["Fear casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Fear could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def anti_spell(casting_player, other_player):
@@ -332,9 +383,14 @@ def anti_spell(casting_player, other_player):
     of that spell sequence. The spell does not affect spells which are
     cast on the same turn nor does it affect monsters."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Anti-spell"] = True  # TODO is bool enough? Activates next round
-        return "Anti-spell casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):  # TODO dispel magic and counter-spell cancel this
+        chosen_player.effects["Anti-spell"] = True
+        res = ["Anti-spell casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Anti-spell could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def protection_from_evil(casting_player, other_player):
@@ -342,7 +398,12 @@ def protection_from_evil(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["protection_from_evil"] = 3
-        return "Protection From Evil casted on " + chosen_player.name
+        res = ["Protection From Evil casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Protection From Evil could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def resist_heat(casting_player, other_player):
@@ -350,7 +411,12 @@ def resist_heat(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["resist_heat"] = True
-        return "Resist Heat casted on " + chosen_player.name
+        res = ["Resist Heat casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Resist Heat could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def resist_cold(casting_player, other_player):
@@ -358,7 +424,12 @@ def resist_cold(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["resist_cold"] = True
-        return "Resist Cold casted on " + chosen_player.name
+        res = ["Resist Cold casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Resist Cold could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def disease(casting_player, other_player):
@@ -368,8 +439,12 @@ def disease(casting_player, other_player):
             and not check_dispel_magic(chosen_player) \
             and "Cure Heavy Wounds" not in chosen_player.spell_to_cast:
         chosen_player.effects["disease"] = 7
-        return "Disease casted on " + chosen_player.name + ". Death is coming..."
-    return "Disease casted on " + chosen_player.name
+        res = ["Disease casted on " + chosen_player.name + ". Death is coming..."] * 2
+        vis = True
+    else:
+        res = ["Disease could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def poison(casting_player, other_player):
@@ -378,8 +453,12 @@ def poison(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player):
         chosen_player.effects["poison"] = 7
-        return "Poison casted on " + chosen_player.name + ". Death will be slow and painful..."
-    return "Poison casted on " + chosen_player.name
+        res = ["Poison casted on " + chosen_player.name + ". Death will be slow and painful..."] * 2
+        vis = True
+    else:
+        res = ["Poison could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def blindness(casting_player, other_player):
@@ -391,8 +470,13 @@ def blindness(casting_player, other_player):
     monsters are instantly destroyed and cannot attack in that turn."""
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Blindness"] = 3  # TODO really 3?
-        return "Blindness casted on " + chosen_player.name
+        chosen_player.effects["Blindness"] = 3
+        res = ["Blindness casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Blindness could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def invisibility(casting_player, other_player):
@@ -401,9 +485,13 @@ def invisibility(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-
         chosen_player.effects["invisible"] = True
-        return chosen_player.name + " became invisible"
+        res = [chosen_player.name + " became invisible"] * 2
+        vis = True
+    else:
+        res = [chosen_player.name + " could not become invisible"] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def haste(casting_player, other_player):
@@ -415,8 +503,13 @@ def haste(casting_player, other_player):
     change target in the extra turns if desired."""
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
-        chosen_player.effects["Haste"] = 3  # TODO really 3?
-        return "Haste casted on " + chosen_player.name
+        chosen_player.effects["Haste"] = 3
+        res = ["Haste casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Haste could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def time_stop(casting_player, other_player):
@@ -428,7 +521,12 @@ def time_stop(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Time Stop"] = True
-        return "Time Stop on " + chosen_player.name
+        res = ["Time Stop on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Time Stop could not be casted on " + chosen_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def delayed_effect(casting_player, other_player):  # TODO WTF O.o
@@ -464,22 +562,27 @@ def stab(casting_player, other_player):
     if "Shield" not in other_player.spell_to_cast \
             and "Protection From Evil" not in other_player.spell_to_cast \
             and not check_counter_spell(other_player) \
-            and not check_dispel_magic(other_player):
-
+            and not check_dispel_magic(other_player):  # TODO pfe check other.effect for pfe > 0
         other_player.health -= 1
-        return casting_player.name + " stabbed " + other_player.name
-    return casting_player.name + " could not stab " + other_player.name
+        res = [casting_player.name + " stabbed " + other_player.name] * 2
+        vis = True
+    else:
+        res = [casting_player.name + " could not stab " + other_player.name] * 2
+        vis = False
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
 def nothing(casting_player, other_player):
     """Nothing no-spell"""
-    return casting_player.name + " did nothing"
+    res = [casting_player.name + " did nothing"] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def surrender(casting_player, other_player):
     """Surrender no-spell"""
     casting_player.effects["surrender"] = True
-    return casting_player.name + " surrendered."
+    res = [casting_player.name + " surrendered."] * 2
+    return get_visible_results(casting_player, other_player, res, True)
 
 
 EFFECT_DICT = {
@@ -492,12 +595,14 @@ EFFECT_DICT = {
     "resist_cold": False,
     "poison": 0,
     # new effects:
-    "Anti-spell": False,  # TODO is bool enough?
-    "Fear": False,  # TODO is bool enough?
-    "Paralysis": False,  # TODO is bool enough?
-    "Charm Person": False,  # TODO is bool enough
-    "Confusion": False,  # TODO is bool enough
-    "Amnesia": False,  # TODO is bool enough
+    "Anti-spell": False,
+    "Fear": False,
+    "Paralysis": False,
+    "Charm Person": False,
+    "Confusion": False,
+    "Amnesia": False,
+    "Permanency": 0,
+    "Delayed effect": 0,
     "Blindness": 0,
     "Haste": 0,
     "Time Stop", False
