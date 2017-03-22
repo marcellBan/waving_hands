@@ -25,11 +25,11 @@ def play_game():
     print("Second player:")
     player_two = Player(dcp(EFFECT_DICT))
     # main game loop
-    previous_turn_results = []
+    previous_turn_results = list()
     while player_one.health > 0 and player_two.health > 0 and \
             not player_one.effects["surrender"] and not player_two.effects["surrender"]:
-        do_input(player_one, player_two, previous_turn_results)
-        do_input(player_two, player_one, previous_turn_results)
+        do_input(player_one, player_two, previous_turn_results[0])
+        do_input(player_two, player_one, previous_turn_results[1])
         previous_turn_results = calc_turn_result(player_one, player_two)
     do_game_end(player_one, player_two)
 
@@ -91,8 +91,8 @@ def print_input_layout(input_player, other_player, previous_turn_results):
     # divider
     print("-" * DIVIDER_WIDTH)
     for item in previous_turn_results:
-        print(item)
-    print("These were the hands played in the previous turns:")
+        print(item) if item != "" else pass
+    print("\nThese were the hands played in the previous turns:")
     # divider
     print("-" * DIVIDER_WIDTH)
     # print header with names
@@ -133,17 +133,22 @@ def calc_turn_result(p_one, p_two):
     parse_for_player(p_one)
     parse_for_player(p_two)
     # cast spells
-    results = []
+    p_one_results = list()
+    p_two_results = list()
     for spell in p_one.spell_to_cast:
         for item in SPELL_DATA:
             if item[0] == spell:
-                results.append(item[2](p_one, p_two))
+                p1, p2 = item[2](p_one, p_two)
+                p_one_results.append(p1)
+                p_two_results.append(p2)
     for spell in p_two.spell_to_cast:
         for item in SPELL_DATA:
             if item[0] == spell:
-                results.append(item[2](p_two, p_one))
+                p2, p1 = item[2](p_two, p_one)
+                p_one_results.append(p1)
+                p_two_results.append(p2)
     handle_effects(p_one, p_two)
-    return results
+    return [p_one_results, p_two_results]
 
 
 def handle_effects(p_one, p_two):
@@ -173,6 +178,11 @@ def handle_effects(p_one, p_two):
         p_one.effects["protection_from_evil"] -= 1
     if p_two.effects["protection_from_evil"] > 0:
         p_two.effects["protection_from_evil"] -= 1
+    # blindness effect
+    if p_one.effects["Blindness"] > 0:
+        p_one.effects["Blindness"] -= 1
+    if p_two.effects["Blindness"] > 0:
+        p_two.effects["Blindness"] -= 1
 
 
 def parse_for_player(parsed_player):
