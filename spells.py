@@ -4,17 +4,6 @@
 """
 
 
-def choose_target(casting_player, other_player):
-    """prompt player to choose target"""
-    while True:
-        answer = input(casting_player.name +
-                       ": Choose your target: s = self, o = opponent\n").lower()
-        if answer == "s":
-            return casting_player
-        elif answer == "o":
-            return other_player
-
-
 def choose_target_player(casting_player, other_player):
     """returns the target player depending on the existence of magic mirror"""
     if not check_counter_spell(casting_player) and not check_dispel_magic(casting_player):
