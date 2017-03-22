@@ -35,10 +35,10 @@ def check_remove_enchantment(player):
 
 def get_visible_results(casting_player, other_player, spell_result, always_visible=False, target_player=None):
     if (casting_player.effects["invisible"] or
-            other_player.effects["Blindness"] > 0) \
+            other_player.effects["blindness"] > 0) \
             and (not always_visible and target_player != other_player):
         spell_result[1] = ""
-    if casting_player.effects["Blindness"] > 0 \
+    if casting_player.effects["blindness"] > 0 \
             and target_player == other_player:
         spell_result[0] = ""
     return tuple(spell_result)
@@ -100,7 +100,7 @@ def dispel_magic(casting_player, other_player):
     casting_player.effects["resist_cold"] = False
     casting_player.effects["disease"] = False
     casting_player.effects["poison"] = False
-    casting_player.effects["Blindness"] = 0
+    casting_player.effects["blindness"] = 0
     # other player
     other_player.effects["invisible"] = False
     other_player.effects["protection_from_evil"] = 0
@@ -108,7 +108,7 @@ def dispel_magic(casting_player, other_player):
     other_player.effects["resist_cold"] = False
     other_player.effects["disease"] = False
     other_player.effects["poison"] = False
-    other_player.effects["Blindness"] = 0
+    other_player.effects["blindness"] = 0
     res = [casting_player.name + ": Dispel Magic casted"] * 2
     return get_visible_results(casting_player, other_player, res)
 
@@ -280,7 +280,7 @@ def amnesia(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):  # TODO:
-        chosen_player.effects["Amnesia"] = True
+        chosen_player.effects["amnesia"] = True
         res = ["Amnesia casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -301,7 +301,7 @@ def confusion(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):  # TODO:
-        chosen_player.effects["Confusion"] = True
+        chosen_player.effects["confusion"] = True
         res = ["Confusion casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -322,7 +322,7 @@ def charm_person(casting_player, other_playe):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):  # TODO:
-        chosen_player.effects["Charm Person"] = True
+        chosen_player.effects["charm_person"] = True
         res = ["Charm Person casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -348,7 +348,7 @@ def paralysis(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):  # TODO:
-        chosen_player.effects["Paralysis"] = True
+        chosen_player.effects["paralysis"] = True
         res = ["Paralysis casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -367,7 +367,7 @@ def fear(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):  # TODO:
-        chosen_player.effects["Fear"] = True
+        chosen_player.effects["fear"] = True
         res = ["Fear casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -386,7 +386,7 @@ def anti_spell(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):  # TODO:
-        chosen_player.effects["Anti-spell"] = True
+        chosen_player.effects["anti_spell"] = True
         res = ["Anti-spell casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -482,7 +482,7 @@ def blindness(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["Blindness"] = 3
+        chosen_player.effects["blindness"] = 3
         res = ["Blindness casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -517,7 +517,7 @@ def haste(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["Haste"] = 3
+        chosen_player.effects["haste"] = 3
         res = ["Haste casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -536,7 +536,7 @@ def time_stop(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["Time Stop"] = True
+        chosen_player.effects["time_stop"] = True
         res = ["Time Stop on " + chosen_player.name] * 2
         vis = True
     else:
@@ -557,7 +557,7 @@ def delayed_effect(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["Delayed Effect"] = 3  # TODO good?
+        chosen_player.effects["delayed_effect"] = 3  # TODO good?
         res = ["Delayed Effect casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -580,7 +580,7 @@ def permanency(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["Permanency"] = 3
+        chosen_player.effects["permanency"] = 3
         res = ["Permanency casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -629,17 +629,17 @@ EFFECT_DICT = {
     "resist_cold": False,
     "poison": 0,
     # new effects:
-    "Anti-spell": False,
-    "Fear": False,
-    "Paralysis": False,
-    "Charm Person": False,
-    "Confusion": False,
-    "Amnesia": False,
-    "Permanency": 0,
-    "Delayed Effect": 0,
-    "Blindness": 0,
-    "Haste": 0,
-    "Time Stop", False
+    "anti_spell": False,
+    "fear": False,
+    "paralysis": False,
+    "charm_person": False,
+    "confusion": False,
+    "amnesia": False,
+    "permanency": 0,
+    "delayed_effect": 0,
+    "blindness": 0,
+    "haste": 0,
+    "time_stop", False
 }
 
 SPELL_DATA = [
