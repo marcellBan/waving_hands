@@ -15,7 +15,7 @@ def choose_target(casting_player, other_player):
             return other_player
 
 
-def check_magic_mirror(casting_player, other_player):
+def choose_target_player(casting_player, other_player):
     """returns the target player depending on the existence of magic mirror"""
     if not check_counter_spell(casting_player) and not check_dispel_magic(casting_player):
         if "Magic Mirror" in other_player.spell_to_cast:
@@ -43,6 +43,13 @@ def check_remove_enchantment(player):
         return True
     return False
 
+
+def get_visible_results(casting_player, other_player, spell_result):
+    if casting_player.effects["invisible"] \
+            or other_player.effects["Blindness"] > 0:
+        spell_result[1] = ""
+    
+
 # Protection:
 
 
@@ -53,7 +60,7 @@ def shield(casting_player, other_player):
 
 def remove_enchantment(casting_player, other_player):
     """Remove Enchantment spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_counter_spell(chosen_player):
 
         casting_player.effects["invisible"] = False
@@ -153,7 +160,7 @@ def cure_heavy_wounds(casting_player, other_player):
 
 def missile(casting_player, other_player):
     """Missile spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
 
     if "Shield" not in chosen_player.spell_to_cast \
             and "Protection From Evil" not in chosen_player.spell_to_cast\
@@ -168,7 +175,7 @@ def missile(casting_player, other_player):
 
 def finger_of_death(casting_player, other_player):
     """Finger of Death spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
 
     if not check_dispel_magic(chosen_player):
         chosen_player.health = 0
@@ -179,7 +186,7 @@ def finger_of_death(casting_player, other_player):
 
 def lightning_bolt(casting_player, other_player):
     """Lightning Bolt spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 5
         return chosen_player.name + "received 5 damage from enemy wizard"
@@ -188,7 +195,7 @@ def lightning_bolt(casting_player, other_player):
 
 def cause_light_wounds(casting_player, other_player):
     """Cause Light Wounds spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 2
         return chosen_player.name + "received 2 damage from enemy wizard"
@@ -197,7 +204,7 @@ def cause_light_wounds(casting_player, other_player):
 
 def cause_heavy_wounds(casting_player, other_player):
     """Cause Heavy Wounds spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player):
         chosen_player.health -= 3
         return chosen_player.name + "received 3 damage from enemy wizard"
@@ -206,7 +213,7 @@ def cause_heavy_wounds(casting_player, other_player):
 
 def fireball(casting_player, other_player):
     """Fireball spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_dispel_magic(chosen_player) \
             and "Ice Storm" not in chosen_player.spell_to_cast:
         chosen_player.health -= 5
@@ -248,7 +255,7 @@ def amnesia(casting_player, other_player):
     the gestures he made in the current turn, including stabs. If the subject is a monster it will
     attack whoever it attacked this turn. If the subject is simultaneously the subject of any of
     confusion, charm person, charm monster, paralysis or fear then none of the spells work."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Amnesia"] = True  # TODO is bool enough? Activates next round
         return "Amnesia casted on " + chosen_player.name
@@ -262,7 +269,7 @@ def confusion(casting_player, other_player):
     3=F, 4=P, 5=S, 6=W. If the subject of the spell is a monster, it attacks at random that turn.
     If the subject is also the subject of any of: amnesia, charm person, charm monster, paralysis
     or fear, none of the spells work."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Confusion"] = True  # TODO is bool enough? Activates next round
         return "Confusion casted on " + chosen_player.name
@@ -276,7 +283,7 @@ def charm_person(casting_player, other_playe):
     reflection from a magic mirror the subject of the mirror assumes the role of caster and writes
     down his opponent's gesture. If the subject is also the subject of any of amnesia, confusion,
     charm monster, paralysis or fear, none of the spells work."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Charm Person"] = True  # TODO is bool enough? Activates next round
         return "Charm Person casted on " + chosen_player.name
@@ -295,7 +302,7 @@ def paralysis(casting_player, other_player):
     unaffected) it simply does not attack in the turn following the one in which the spell was cast.
     If the subject of the spell is also the subject of any of amnesia, confusion, charm person,
     charm monster or fear, none of the spells work."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Paralysis"] = True  # TODO is bool enough? Activates next round
         return "Paralysis casted on " + chosen_player.name
@@ -307,7 +314,7 @@ def fear(casting_player, other_player):
     has no effect on monsters. If the subject is also the subject of
     amnesia, confusion, charm person, charm monster or paralysis, then
     none of the spells work."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Fear"] = True  # TODO is bool enough? Activates next round
         return "Fear casted on " + chosen_player.name
@@ -319,7 +326,7 @@ def anti_spell(casting_player, other_player):
     in a spell sequence and must restart a new spell from the beginning
     of that spell sequence. The spell does not affect spells which are
     cast on the same turn nor does it affect monsters."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Anti-spell"] = True  # TODO is bool enough? Activates next round
         return "Anti-spell casted on " + chosen_player.name
@@ -327,7 +334,7 @@ def anti_spell(casting_player, other_player):
 
 def protection_from_evil(casting_player, other_player):
     """Protection From Evil spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["protection_from_evil"] = 3
         return "Protection From Evil casted on " + chosen_player.name
@@ -335,7 +342,7 @@ def protection_from_evil(casting_player, other_player):
 
 def resist_heat(casting_player, other_player):
     """Resist Heat spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["resist_heat"] = True
         return "Resist Heat casted on " + chosen_player.name
@@ -343,7 +350,7 @@ def resist_heat(casting_player, other_player):
 
 def resist_cold(casting_player, other_player):
     """Resist Cold spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["resist_cold"] = True
         return "Resist Cold casted on " + chosen_player.name
@@ -351,7 +358,7 @@ def resist_cold(casting_player, other_player):
 
 def disease(casting_player, other_player):
     """Disease spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and "Cure Heavy Wounds" not in chosen_player.spell_to_cast:
@@ -362,7 +369,7 @@ def disease(casting_player, other_player):
 
 def poison(casting_player, other_player):
     """Poison spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player):
         chosen_player.effects["poison"] = 7
@@ -377,7 +384,7 @@ def blindness(casting_player, other_player):
     Indeed he will not know if his own spells work unless they also affect him (e.g. a fire storm when he isn't
     resistant to fire.) He can control his monsters (e.g. "Attack whatever it was that just attacked me"). Blinded
     monsters are instantly destroyed and cannot attack in that turn."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Blindness"] = 3  # TODO really 3?
         return "Blindness casted on " + chosen_player.name
@@ -385,7 +392,7 @@ def blindness(casting_player, other_player):
 
 def invisibility(casting_player, other_player):
     """Invisibility spell"""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
@@ -401,7 +408,7 @@ def haste(casting_player, other_player):
     counter-spell from his adversary could cancel 2 spells cast by the hastened wizard on 2 half-turns if the phasing is
     right. Non-hastened wizards and monsters can see everything the hastened individual is doing. Hastened monsters can
     change target in the extra turns if desired."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Haste"] = 3  # TODO really 3?
         return "Haste casted on " + chosen_player.name
@@ -413,7 +420,7 @@ def time_stop(casting_player, other_player):
     halfway through the duration of a protection from evil spell can be harmed by a monster which has had its time
     stopped. Time-stopped monsters attack whoever their controller instructs, and time-stopped elementals affect
     everyone, resistance to heat or cold being immaterial in that turn."""
-    chosen_player = check_magic_mirror(casting_player, other_player)
+    chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player):
         chosen_player.effects["Time Stop"] = True
         return "Time Stop on " + chosen_player.name
