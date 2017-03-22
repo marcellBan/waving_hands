@@ -160,8 +160,9 @@ def missile(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if "Shield" not in chosen_player.spell_to_cast \
             and "Protection From Evil" not in chosen_player.spell_to_cast\
+            and chosen_player.effect["protection_from_evil"] != 0 \
             and not check_counter_spell(other_player) \
-            and not check_dispel_magic(other_player):  # TODO: pfe check other.effect for pfe > 0
+            and not check_dispel_magic(other_player):
         chosen_player.health -= 1
         res = ["Missile succesfully hit " + chosen_player.name] * 2
         vis = True
@@ -276,7 +277,9 @@ def amnesia(casting_player, other_player):
     attack whoever it attacked this turn. If the subject is simultaneously the subject of any of
     confusion, charm person, charm monster, paralysis or fear then none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):  # TODO: dispel magic and counter-spell cancel this
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):  # TODO:
         chosen_player.effects["Amnesia"] = True
         res = ["Amnesia casted on " + chosen_player.name] * 2
         vis = True
@@ -295,7 +298,9 @@ def confusion(casting_player, other_player):
     If the subject is also the subject of any of: amnesia, charm person, charm monster, paralysis
     or fear, none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):  # TODO: dispel magic and counter-spell cancel this
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):  # TODO:
         chosen_player.effects["Confusion"] = True
         res = ["Confusion casted on " + chosen_player.name] * 2
         vis = True
@@ -314,7 +319,9 @@ def charm_person(casting_player, other_playe):
     down his opponent's gesture. If the subject is also the subject of any of amnesia, confusion,
     charm monster, paralysis or fear, none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):  # TODO: dispel magic and counter-spell cancel this
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):  # TODO:
         chosen_player.effects["Charm Person"] = True
         res = ["Charm Person casted on " + chosen_player.name] * 2
         vis = True
@@ -338,7 +345,9 @@ def paralysis(casting_player, other_player):
     If the subject of the spell is also the subject of any of amnesia, confusion, charm person,
     charm monster or fear, none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):  # TODO: dispel magic and counter-spell cancel this
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):  # TODO:
         chosen_player.effects["Paralysis"] = True
         res = ["Paralysis casted on " + chosen_player.name] * 2
         vis = True
@@ -355,7 +364,9 @@ def fear(casting_player, other_player):
     amnesia, confusion, charm person, charm monster or paralysis, then
     none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):  # TODO: dispel magic and counter-spell cancel this
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):  # TODO:
         chosen_player.effects["Fear"] = True
         res = ["Fear casted on " + chosen_player.name] * 2
         vis = True
@@ -372,7 +383,9 @@ def anti_spell(casting_player, other_player):
     of that spell sequence. The spell does not affect spells which are
     cast on the same turn nor does it affect monsters."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):  # TODO: dispel magic and counter-spell cancel this
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):  # TODO:
         chosen_player.effects["Anti-spell"] = True
         res = ["Anti-spell casted on " + chosen_player.name] * 2
         vis = True
@@ -385,7 +398,9 @@ def anti_spell(casting_player, other_player):
 def protection_from_evil(casting_player, other_player):
     """Protection From Evil spell"""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["protection_from_evil"] = 3
         res = ["Protection From Evil casted on " + chosen_player.name] * 2
         vis = True
@@ -398,7 +413,9 @@ def protection_from_evil(casting_player, other_player):
 def resist_heat(casting_player, other_player):
     """Resist Heat spell"""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["resist_heat"] = True
         res = ["Resist Heat casted on " + chosen_player.name] * 2
         vis = True
@@ -411,7 +428,9 @@ def resist_heat(casting_player, other_player):
 def resist_cold(casting_player, other_player):
     """Resist Cold spell"""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["resist_cold"] = True
         res = ["Resist Cold casted on " + chosen_player.name] * 2
         vis = True
@@ -426,6 +445,7 @@ def disease(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player) \
             and "Cure Heavy Wounds" not in chosen_player.spell_to_cast:
         chosen_player.effects["disease"] = 7
         res = ["Disease casted on " + chosen_player.name + ". Death is coming..."] * 2
@@ -440,7 +460,8 @@ def poison(casting_player, other_player):
     """Poison spell"""
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player):
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["poison"] = 7
         res = ["Poison casted on " + chosen_player.name + ". Death will be slow and painful..."] * 2
         vis = True
@@ -458,7 +479,9 @@ def blindness(casting_player, other_player):
     resistant to fire.) He can control his monsters (e.g. "Attack whatever it was that just attacked me"). Blinded
     monsters are instantly destroyed and cannot attack in that turn."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["Blindness"] = 3
         res = ["Blindness casted on " + chosen_player.name] * 2
         vis = True
@@ -491,7 +514,9 @@ def haste(casting_player, other_player):
     right. Non-hastened wizards and monsters can see everything the hastened individual is doing. Hastened monsters can
     change target in the extra turns if desired."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["Haste"] = 3
         res = ["Haste casted on " + chosen_player.name] * 2
         vis = True
@@ -508,7 +533,9 @@ def time_stop(casting_player, other_player):
     stopped. Time-stopped monsters attack whoever their controller instructs, and time-stopped elementals affect
     everyone, resistance to heat or cold being immaterial in that turn."""
     chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player):
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["Time Stop"] = True
         res = ["Time Stop on " + chosen_player.name] * 2
         vis = True
@@ -518,7 +545,7 @@ def time_stop(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
-def delayed_effect(casting_player, other_player):  # TODO: WTF O.o
+def delayed_effect(casting_player, other_player):
     """gestures D-W-S-S-S-P. This spell only works if cast upon a wizard. The next spell he completes, provided it is on
     this turn or one of the next 3 is "banked" until needed, i.e. it fails to work until its caster desires. This next
     spell which is to be banked does not include the actual spell doing the banking. The spell must be written down to
@@ -526,10 +553,19 @@ def delayed_effect(casting_player, other_player):  # TODO: WTF O.o
     subject not those cast at him. If he casts more than one spell at the same time he chooses which is to be banked.
     Remember that P is a shield spell, and surrender is not a spell. A wizard may only have one spell banked at any one
     time."""
-    pass
+    chosen_player = choose_target_player(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
+        chosen_player.effects["Delayed Effect"] = 3  # TODO good?
+        res = ["Delayed Effect casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Delayed Effect could not be casted on " + chosen_player.name] * 2
+        vis = False
 
 
-def permanency(casting_player, other_player):  # TODO: WTF O.o
+def permanency(casting_player, other_player):
     """gestures S-P-F-P-S-D-W. This spell only works if cast upon a wizard. The next spell he completes, provided it is
     on this turn or one of the next 3, and which falls into the category of "Enchantments" (except anti-spell, disease,
     poison, or time-stop) will have its effect made permanent. This means that the effect of the extended spell on the
@@ -540,7 +576,16 @@ def permanency(casting_player, other_player):  # TODO: WTF O.o
     subject of the spell. A permanency spell cannot increase its own duration, nor the duration of spells saved by a
     delayed effect (so if both a permanency and delayed effect are eligible for the same spell to be banked or extended,
     a choice must be made, the losing spell being neutralized and working on the next spell instead)."""
-    pass
+    chosen_player = choose_target_player(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
+        chosen_player.effects["Permanency"] = 3
+        res = ["Permanency casted on " + chosen_player.name] * 2
+        vis = True
+    else:
+        res = ["Permanency could not be casted on " + chosen_player.name] * 2
+        vis = False
 
 
 # Non-spells
@@ -591,7 +636,7 @@ EFFECT_DICT = {
     "Confusion": False,
     "Amnesia": False,
     "Permanency": 0,
-    "Delayed effect": 0,
+    "Delayed Effect": 0,
     "Blindness": 0,
     "Haste": 0,
     "Time Stop", False

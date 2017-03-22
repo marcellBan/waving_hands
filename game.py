@@ -222,7 +222,7 @@ def parse_for_player(parsed_player):
             parsed_player.spell_to_cast.append("Surrender")
         else:
             resolve_conflicts(parsed_player, left_hand, right_hand)
-
+    
 
 def resolve_conflicts(parsed_player, left_hand, right_hand):
     """
