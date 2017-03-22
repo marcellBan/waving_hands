@@ -27,16 +27,21 @@ def check_counter_spell(player):
     """checks if the player casted counter spell"""
     if "Counter-Spell" in player.spell_to_cast:
         return True
-    else:
-        return False
+    return False
 
 
 def check_dispel_magic(player):
     """checks if the player casted dispel"""
     if "Dispel Magic" in player.spell_to_cast:
         return True
-    else:
-        return False
+    return False
+
+
+def check_remove_enchantment(player):
+    """checks if the player casted Remove Enchantment"""
+    if "Remove Enchantment" in player.spell_to_cast:
+        return True
+    return False
 
 # Protection:
 
@@ -90,7 +95,7 @@ def dispel_magic(casting_player, other_player):
         casting_player.effects["resist_cold"] = False
         casting_player.effects["disease"] = False
         casting_player.effects["poison"] = False
-
+        # other player
         other_player.effects["invisible"] = False
         other_player.effects["protection_from_evil"] = 0
         other_player.effects["resist_heat"] = False
@@ -101,8 +106,18 @@ def dispel_magic(casting_player, other_player):
     return "Dispel Magic could not be casted by " + casting_player.name
 
 
-def raise_dead(casting_player, other_player):
-    """Raise Dead spell"""
+def raise_dead(casting_player, other_player):  # TODO implement
+    """gestures D-W-W-F-W-C. The subject of this spell is usually a recently-dead (not yet decomposing) human corpse
+    though it may be used on a dead monster. When the spell is cast, life returns to the corpse and all damage is cured.
+    All enchantments are also removed (as per the spell) so any diseases or poisons will be neutralized and all other
+    enchantments removed. If swords, knives, or other implements of destruction still remain in the corpse when it is
+    raised, they will of course cause it damage as usual. The subject will be able to act normally immediately after the
+    spell is cast. On the turn a monster is raised it may attack. Wizards may begin gesturing on the turn following
+    their return from the dead. This is the only spell which affects corpses. It therefore cannot be stopped by a
+    counter-spell. A dispel magic spell will prevent its effect, since dispel magic affects all spells no matter what
+    their subject. If the spell is cast on a live individual, the effect is that of a cure light wounds recovering five
+    points of damage, or as many as have been sustained if less than five. Note that any diseases the live subject might
+    have are not cured."""
     pass
 
 
@@ -229,90 +244,150 @@ def ice_storm(casting_player, other_player):
 
 
 def amnesia(casting_player, other_player):
-    """Amnesia spell"""
-    pass
+    """gestures D-P-P. If the subject of this spell is a wizard, next turn he must repeat identically
+    the gestures he made in the current turn, including stabs. If the subject is a monster it will
+    attack whoever it attacked this turn. If the subject is simultaneously the subject of any of
+    confusion, charm person, charm monster, paralysis or fear then none of the spells work."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Amnesia"] = True  # TODO is bool enough? Activates next round
+        return "Amnesia casted on " + chosen_player.name
 
 
 def confusion(casting_player, other_player):
-    """Confusion spell"""
-    pass
+    """gestures D-S-F. If the subject of this spell is a wizard, next turn he writes down his
+    gestures as usual and after exposing them, rolls 2 dice to determine which gesture is
+    superseded due to his being confused. The first die indicates left hand on 1-3, right on 4-6.
+    The second roll determines what the gesture for that hand shall be replaced with: 1=C, 2=D,
+    3=F, 4=P, 5=S, 6=W. If the subject of the spell is a monster, it attacks at random that turn.
+    If the subject is also the subject of any of: amnesia, charm person, charm monster, paralysis
+    or fear, none of the spells work."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Confusion"] = True  # TODO is bool enough? Activates next round
+        return "Confusion casted on " + chosen_player.name
 
 
 def charm_person(casting_player, other_playe):
-    """Charm Person spell"""
-    pass
+    """gestures P-S-D-F. Except for cancellation with other enchantments, this spell only affects
+    humans. The subject is told which of his hands will be controlled at the time the spell hits,
+    and in the following turn, the caster of the spell writes down the gesture he wants the subject's
+    named hand to perform. This could be a stab or nothing. If the subject is only so because of a
+    reflection from a magic mirror the subject of the mirror assumes the role of caster and writes
+    down his opponent's gesture. If the subject is also the subject of any of amnesia, confusion,
+    charm monster, paralysis or fear, none of the spells work."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Charm Person"] = True  # TODO is bool enough? Activates next round
+        return "Charm Person casted on " + chosen_player.name
 
 
 def paralysis(casting_player, other_player):
-    """Paralysis spell"""
-    pass
+    """gestures F-F-F. If the subject of the spell is a wizard, then on the turn the spell is cast,
+    after gestures have been revealed, the caster selects one of the wizard's hands and on the next
+    turn that hand is paralyzed into the position it is in this turn. If the wizard already had a
+    paralyzed hand, it must be the same hand which is paralyzed again. Certain gestures remain the
+    same but if the hand being paralyzed is performing a C, S or W it is instead paralyzed into
+    F, D or P respectively, otherwise it will remain in the position written down (this allows repeated stabs).
+    A favourite ploy is to continually paralyze a hand (F-F-F-F-F-F etc.) into a non-P gesture and then set a
+    monster on the subject so that he has to use his other hand to protect himself, but then has no defence
+    against other magical attacks. If the subject of the spell is a monster (excluding elementals which are
+    unaffected) it simply does not attack in the turn following the one in which the spell was cast.
+    If the subject of the spell is also the subject of any of amnesia, confusion, charm person,
+    charm monster or fear, none of the spells work."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Paralysis"] = True  # TODO is bool enough? Activates next round
+        return "Paralysis casted on " + chosen_player.name
 
 
 def fear(casting_player, other_player):
-    """Fear spell"""
-    pass
+    """gestures S-W-D. In the turn following the casting of this spell,
+    the subject cannot perform a C, D, F or S gesture. This obviously
+    has no effect on monsters. If the subject is also the subject of
+    amnesia, confusion, charm person, charm monster or paralysis, then
+    none of the spells work."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Fear"] = True  # TODO is bool enough? Activates next round
+        return "Fear casted on " + chosen_player.name
 
 
 def anti_spell(casting_player, other_player):
-    """Anti-spell spell"""
-    pass
+    """gestures S-P-F. On the turn following the casting of this spell,
+    the subject cannot include any gestures made on or before this turn
+    in a spell sequence and must restart a new spell from the beginning
+    of that spell sequence. The spell does not affect spells which are
+    cast on the same turn nor does it affect monsters."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Anti-spell"] = True  # TODO is bool enough? Activates next round
+        return "Anti-spell casted on " + chosen_player.name
 
 
 def protection_from_evil(casting_player, other_player):
     """Protection From Evil spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    chosen_player.effects["protection_from_evil"] = 3
-    return "Protection From Evil casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["protection_from_evil"] = 3
+        return "Protection From Evil casted on " + chosen_player.name
 
 
 def resist_heat(casting_player, other_player):
     """Resist Heat spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    chosen_player.effects["resist_heat"] = True
-    return "Resist Heat casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["resist_heat"] = True
+        return "Resist Heat casted on " + chosen_player.name
 
 
 def resist_cold(casting_player, other_player):
     """Resist Cold spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    chosen_player.effects["resist_cold"] = True
-    return "Resist Cold casted on " + chosen_player.name
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["resist_cold"] = True
+        return "Resist Cold casted on " + chosen_player.name
 
 
 def disease(casting_player, other_player):
     """Disease spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-
-    if "Remove Enchantment" not in chosen_player.spell_to_cast \
+    if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and "Cure Heavy Wounds" not in chosen_player.spell_to_cast:
-
         chosen_player.effects["disease"] = 7
-        return "Disease given to " + chosen_player.name + ". Death is coming..."
+        return "Disease casted on " + chosen_player.name + ". Death is coming..."
     return "Disease casted on " + chosen_player.name
 
 
 def poison(casting_player, other_player):
     """Poison spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-
-    if "Remove Enchantment" not in chosen_player.spell_to_cast \
+    if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player):
-
         chosen_player.effects["poison"] = 7
-        return "Poison given to " + chosen_player.name + ". Death will be slow and painful..."
+        return "Poison casted on " + chosen_player.name + ". Death will be slow and painful..."
     return "Poison casted on " + chosen_player.name
 
 
 def blindness(casting_player, other_player):
-    """Blindness spell"""
-    pass
+    """gestures D-W-F-F-(d. For the next 3 turns not including the one in which the spell was cast, the subject
+    is unable to see. If he is a wizard, he cannot tell what his opponent's gestures are, although he must be informed
+    of any which affect him (e.g. summons spells, missile etc cast at him) but not counter- spells to his own attacks.
+    Indeed he will not know if his own spells work unless they also affect him (e.g. a fire storm when he isn't
+    resistant to fire.) He can control his monsters (e.g. "Attack whatever it was that just attacked me"). Blinded
+    monsters are instantly destroyed and cannot attack in that turn."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Blindness"] = 3  # TODO really 3?
+        return "Blindness casted on " + chosen_player.name
 
 
 def invisibility(casting_player, other_player):
     """Invisibility spell"""
     chosen_player = check_magic_mirror(casting_player, other_player)
-    if not check_dispel_magic(chosen_player) \
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
 
         chosen_player.effects["invisible"] = True
@@ -320,22 +395,52 @@ def invisibility(casting_player, other_player):
 
 
 def haste(casting_player, other_player):
-    """Haste spell"""
-    pass
+    """gestures P-W-P-W-W-C. For the next 3 turns, the subject (but not his monsters if a wizard) makes an extra set of
+    gestures due to being speeded up. This takes effect in the following turn so that instead of giving one pair of
+    gestures, 2 are given, the effect of both being taken simultaneously at the end of the turn. Thus a single
+    counter-spell from his adversary could cancel 2 spells cast by the hastened wizard on 2 half-turns if the phasing is
+    right. Non-hastened wizards and monsters can see everything the hastened individual is doing. Hastened monsters can
+    change target in the extra turns if desired."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Haste"] = 3  # TODO really 3?
+        return "Haste casted on " + chosen_player.name
 
 
 def time_stop(casting_player, other_player):
-    """Time Stop spell"""
+    """gestures S-P-P-C. The subject of this spell immediately takes an extra turn, on which no-one can see or know
+    about unless they are harmed. All non-affected beings have no resistance to any form of attack, e.g. a wizard
+    halfway through the duration of a protection from evil spell can be harmed by a monster which has had its time
+    stopped. Time-stopped monsters attack whoever their controller instructs, and time-stopped elementals affect
+    everyone, resistance to heat or cold being immaterial in that turn."""
+    chosen_player = check_magic_mirror(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player):
+        chosen_player.effects["Time Stop"] = True
+        return "Time Stop on " + chosen_player.name
+
+
+def delayed_effect(casting_player, other_player):  # TODO WTF O.o
+    """gestures D-W-S-S-S-P. This spell only works if cast upon a wizard. The next spell he completes, provided it is on
+    this turn or one of the next 3 is "banked" until needed, i.e. it fails to work until its caster desires. This next
+    spell which is to be banked does not include the actual spell doing the banking. The spell must be written down to
+    be used by its caster at the same time that he writes his gestures. Note that spells banked are those cast by the
+    subject not those cast at him. If he casts more than one spell at the same time he chooses which is to be banked.
+    Remember that P is a shield spell, and surrender is not a spell. A wizard may only have one spell banked at any one
+    time."""
     pass
 
 
-def delayed_effect(casting_player, other_player):
-    """Delayed Effect spell"""
-    pass
-
-
-def permanency(casting_player, other_player):
-    """Permanency spell"""
+def permanency(casting_player, other_player):  # TODO WTF O.o
+    """gestures S-P-F-P-S-D-W. This spell only works if cast upon a wizard. The next spell he completes, provided it is
+    on this turn or one of the next 3, and which falls into the category of "Enchantments" (except anti-spell, disease,
+    poison, or time-stop) will have its effect made permanent. This means that the effect of the extended spell on the
+    first turn of its duration is repeated eternally. For example, a confusion spell will be the same gesture rather
+    than re-rolling the dice, a charm person will mean repetition of the chosen gesture, etc. If the subject of the
+    permanency casts more than one spell at the same time eligible for permanency, he chooses which has its duration
+    extended. Note that the person who has his spell made permanent does not necessarily have to make himself the
+    subject of the spell. A permanency spell cannot increase its own duration, nor the duration of spells saved by a
+    delayed effect (so if both a permanency and delayed effect are eligible for the same spell to be banked or extended,
+    a choice must be made, the losing spell being neutralized and working on the next spell instead)."""
     pass
 
 
@@ -373,7 +478,17 @@ EFFECT_DICT = {
     "protection_from_evil": 0,
     "resist_heat": False,
     "resist_cold": False,
-    "poison": 0
+    "poison": 0,
+    # new effects:
+    "Anti-spell": False,  # TODO is bool enough?
+    "Fear": False,  # TODO is bool enough?
+    "Paralysis": False,  # TODO is bool enough?
+    "Charm Person": False,  # TODO is bool enough
+    "Confusion": False,  # TODO is bool enough
+    "Amnesia": False,  # TODO is bool enough
+    "Blindness": 0,
+    "Haste": 0,
+    "Time Stop", False
 }
 
 SPELL_DATA = [
