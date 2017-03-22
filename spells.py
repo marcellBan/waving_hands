@@ -279,7 +279,12 @@ def amnesia(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):  # TODO:
+            and not check_counter_spell(chosen_player) \
+            and not chosen_player.effects["confusion"] \
+            and not chosen_player.effects["charm_person"] \
+            and not chosen_player.effects["paralysis"] \
+            and not chosen_player.effects["fear"]:
+
         chosen_player.effects["amnesia"] = True
         res = ["Amnesia casted on " + chosen_player.name] * 2
         vis = True
@@ -300,7 +305,12 @@ def confusion(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):  # TODO:
+            and not check_counter_spell(chosen_player) \
+            and not chosen_player.effects["amnesia"] \
+            and not chosen_player.effects["charm_person"] \
+            and not chosen_player.effects["paralysis"] \
+            and not chosen_player.effects["fear"]:
+
         chosen_player.effects["confusion"] = True
         res = ["Confusion casted on " + chosen_player.name] * 2
         vis = True
@@ -321,7 +331,12 @@ def charm_person(casting_player, other_playe):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):  # TODO:
+            and not check_counter_spell(chosen_player) \
+            and not chosen_player.effects["amnesia"] \
+            and not chosen_player.effects["confusion"] \
+            and not chosen_player.effects["paralysis"] \
+            and not chosen_player.effects["fear"]:
+
         chosen_player.effects["charm_person"] = True
         res = ["Charm Person casted on " + chosen_player.name] * 2
         vis = True
@@ -347,7 +362,12 @@ def paralysis(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):  # TODO:
+            and not check_counter_spell(chosen_player) \
+            and not chosen_player.effects["amnesia"] \
+            and not chosen_player.effects["confusion"] \
+            and not chosen_player.effects["charm_person"] \
+            and not chosen_player.effects["fear"]:
+
         chosen_player.effects["paralysis"] = True
         res = ["Paralysis casted on " + chosen_player.name] * 2
         vis = True
@@ -366,7 +386,12 @@ def fear(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):  # TODO:
+            and not check_counter_spell(chosen_player) \
+            and not chosen_player.effects["amnesia"] \
+            and not chosen_player.effects["confusion"] \
+            and not chosen_player.effects["charm_person"] \
+            and not chosen_player.effects["paralysis"]:
+
         chosen_player.effects["fear"] = True
         res = ["Fear casted on " + chosen_player.name] * 2
         vis = True
@@ -376,7 +401,7 @@ def fear(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
-def anti_spell(casting_player, other_player):
+def anti_spell(casting_player, other_player):  #TODO:
     """gestures S-P-F. On the turn following the casting of this spell,
     the subject cannot include any gestures made on or before this turn
     in a spell sequence and must restart a new spell from the beginning
@@ -385,7 +410,7 @@ def anti_spell(casting_player, other_player):
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):  # TODO:
+            and not check_counter_spell(chosen_player):
         chosen_player.effects["anti_spell"] = True
         res = ["Anti-spell casted on " + chosen_player.name] * 2
         vis = True
