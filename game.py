@@ -268,6 +268,12 @@ def handle_effects(p_one, p_two):
         # haste effect
         if p.effects["haste"] > 0:
             p.effects["haste"] -= 1
+        # delayed effect
+        if p.effects["delayed_effect"] > 0:
+            p.effects["delayed_effect"] -= 1
+        # permanency effect
+        if p.effects["permanency"] > 0:
+            p.effects["permanency"] -= 1
 
 
 def parse_for_player(parsed_player):
@@ -330,6 +336,39 @@ def resolve_conflicts(parsed_player, left_hand, right_hand):
                 (item[1][-2:] in ["(f", "(p", "(s", "(w", "(d"] or item[1][-1] == 'C'):
             ask_player_which_spell_to_cast(parsed_player, to_cast, "hands")
             break
+    # delayed effect
+    if parsed_player.banked != "":
+        res = ask_player_to_cast_banked_spell(parsed_player)
+        if res:
+            to_cast.append(parsed_player.banked)
+            parsed_player.banked = ""
+    if "Delayed Effect" in to_cast and len(to_cast) == 2:
+        to_cast.remove("Delayed Effect")
+        parsed_player.banked = to_cast[0]
+        to_cast.clear()
+    if parsed_player.effects["delayed_effect"] > 0:
+        if len(to_cast) == 1:
+            parsed_player.banked = to_cast[0]
+            parsed_player.effects["delayed_effect"] = 0
+            to_cast.clear()
+        elif len(to_cast) == 2:
+            parsed_player.banked = ask_player_which_spell_to_bank(parsed_player, to_cast)
+            parsed_player.effects["delayed_effect"] = 0
+            to_cast.remove(parsed_player.banked)
+    # permanency effect
+    if "Permanency" in to_cast and len(to_cast) == 2:
+        to_cast.remove("Permanency")
+        parsed_player.banked = to_cast[0]
+        to_cast.clear()
+    if parsed_player.effects["permanency"] > 0:
+        if len(to_cast) == 1:
+            parsed_player.permanent = to_cast[0]
+            parsed_player.effects["permanency"] = 0
+            to_cast.clear()
+        elif len(to_cast) == 2:
+            parsed_player.permanent = ask_player_which_spell_to_bank(parsed_player, to_cast)
+            parsed_player.effects["permanency"] = 0
+            to_cast.remove(parsed_player.permanent)
     # mark spells to cast
     parsed_player.spell_to_cast.extend(to_cast)
 

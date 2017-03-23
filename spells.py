@@ -142,17 +142,7 @@ def dispel_magic(casting_player, other_player):  # Neither reflectable, nor choo
 
 
 def raise_dead(casting_player, other_player):  # Neither reflectable, nor choosable
-    """gestures D-W-W-F-W-C. The subject of this spell is usually a recently-dead (not yet decomposing) human corpse
-    though it may be used on a dead monster. When the spell is cast, life returns to the corpse and all damage is cured.
-    All enchantments are also removed (as per the spell) so any diseases or poisons will be neutralized and all other
-    enchantments removed. If swords, knives, or other implements of destruction still remain in the corpse when it is
-    raised, they will of course cause it damage as usual. The subject will be able to act normally immediately after the
-    spell is cast. On the turn a monster is raised it may attack. Wizards may begin gesturing on the turn following
-    their return from the dead. This is the only spell which affects corpses. It therefore cannot be stopped by a
-    counter-spell. A dispel magic spell will prevent its effect, since dispel magic affects all spells no matter what
-    their subject. If the spell is cast on a live individual, the effect is that of a cure light wounds recovering five
-    points of damage, or as many as have been sustained if less than five. Note that any diseases the live subject might
-    have are not cured."""
+    """Raise dead spell"""
     casting_player.effects["raise_dead"] = True
     res = [casting_player.name + ": Raise Dead casted"] * 2
     return get_visible_results(casting_player, other_player, res)
@@ -304,11 +294,7 @@ def ice_storm(casting_player, other_player):  # Neither reflectable, nor choosab
 
 def amnesia(casting_player, other_player):  # Only reflectable
 
-    """gestures D-P-P. If the subject of this spell is a wizard, next turn he must repeat
-    identically the gestures he made in the current turn, including stabs. If the subject is a
-    monster it will attack whoever it attacked this turn. If the subject is simultaneously the
-    subject of any of confusion, charm person, charm monster, paralysis or fear then none of
-    the spells work."""
+    """Amnesia spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
             and not check_dispel_magic(targeted_player) \
@@ -327,13 +313,7 @@ def amnesia(casting_player, other_player):  # Only reflectable
 
 
 def confusion(casting_player, other_player):  # Only reflectable
-    """gestures D-S-F. If the subject of this spell is a wizard, next turn he writes down his
-    gestures as usual and after exposing them, rolls 2 dice to determine which gesture is
-    superseded due to his being confused. The first die indicates left hand on 1-3, right on 4-6.
-    The second roll determines what the gesture for that hand shall be replaced with: 1=C, 2=D,
-    3=F, 4=P, 5=S, 6=W. If the subject of the spell is a monster, it attacks at random that turn.
-    If the subject is also the subject of any of: amnesia, charm person, charm monster, paralysis
-    or fear, none of the spells work."""
+    """Confusion spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
             and not check_dispel_magic(targeted_player) \
@@ -392,11 +372,7 @@ def paralysis(casting_player, other_player):
 
 
 def fear(casting_player, other_player):
-    """gestures S-W-D. In the turn following the casting of this spell,
-    the subject cannot perform a C, D, F or S gesture. This obviously
-    has no effect on monsters. If the subject is also the subject of
-    amnesia, confusion, charm person, charm monster or paralysis, then
-    none of the spells work."""
+    """Fear spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
             and not check_dispel_magic(targeted_player) \
@@ -419,7 +395,7 @@ def protection_from_evil(casting_player, other_player):
     if not check_remove_enchantment(other_player) \
             and not check_dispel_magic(other_player) \
             and not check_counter_spell(other_player):
-        other_player.effects["protection_from_evil"] = 3
+        other_player.effects["protection_from_evil"] = 4
         res = ["Protection From Evil casted on " + other_player.name] * 2
         vis = True
     else:
@@ -493,7 +469,7 @@ def blindness(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["blindness"] = 3
+        chosen_player.effects["blindness"] = 4
         res = ["Blindness casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -522,7 +498,7 @@ def haste(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["haste"] = 3
+        chosen_player.effects["haste"] = 4
         res = ["Haste casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -532,17 +508,11 @@ def haste(casting_player, other_player):
 
 
 def delayed_effect(casting_player, other_player):
-    """gestures D-W-S-S-S-P. This spell only works if cast upon a wizard. The next spell he completes, provided it is on
-    this turn or one of the next 3 is "banked" until needed, i.e. it fails to work until its caster desires. This next
-    spell which is to be banked does not include the actual spell doing the banking. The spell must be written down to
-    be used by its caster at the same time that he writes his gestures. Note that spells banked are those cast by the
-    subject not those cast at him. If he casts more than one spell at the same time he chooses which is to be banked.
-    Remember that P is a shield spell, and surrender is not a spell. A wizard may only have one spell banked at any one
-    time."""
+    """Delayed Effect spell"""
     if not check_remove_enchantment(other_player) \
             and not check_dispel_magic(other_player) \
             and not check_counter_spell(other_player):
-        other_player.effects["delayed_effect"] = 3
+        other_player.effects["delayed_effect"] = 4
         res = ["Delayed Effect casted on " + other_player.name] * 2
         vis = True
     else:
@@ -552,21 +522,12 @@ def delayed_effect(casting_player, other_player):
 
 
 def permanency(casting_player, other_player):
-    """gestures S-P-F-P-S-D-W. This spell only works if cast upon a wizard. The next spell he completes, provided it is
-    on this turn or one of the next 3, and which falls into the category of "Enchantments" (except anti-spell, disease,
-    poison, or time-stop) will have its effect made permanent. This means that the effect of the extended spell on the
-    first turn of its duration is repeated eternally. For example, a confusion spell will be the same gesture rather
-    than re-rolling the dice, a charm person will mean repetition of the chosen gesture, etc. If the subject of the
-    permanency casts more than one spell at the same time eligible for permanency, he chooses which has its duration
-    extended. Note that the person who has his spell made permanent does not necessarily have to make himself the
-    subject of the spell. A permanency spell cannot increase its own duration, nor the duration of spells saved by a
-    delayed effect (so if both a permanency and delayed effect are eligible for the same spell to be banked or extended,
-    a choice must be made, the losing spell being neutralized and working on the next spell instead)."""
+    """Permanency spell"""
     chosen_player = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["permanency"] = 3
+        chosen_player.effects["permanency"] = 4
         res = ["Permanency casted on " + chosen_player.name] * 2
         vis = True
     else:
@@ -624,7 +585,6 @@ EFFECT_DICT = {
     "delayed_effect": 0,
     "blindness": 0,
     "haste": 0,
-    "time_stop": False,
     "surrender": False,
     "raise_dead": False
 }
@@ -656,7 +616,6 @@ SPELL_DATA = [
     ("Charm Person", "PSDF", charm_person),
     ("Paralysis", "FFF", paralysis),
     ("Fear", "SWD", fear),
-    ("Anti-spell", "SPF", anti_spell),
     ("Protection From Evil", "WWP", protection_from_evil),
     ("Resist Heat", "WWFP", resist_heat),
     ("Resist Cold", "SSFP", resist_cold),
@@ -665,7 +624,6 @@ SPELL_DATA = [
     ("Blindness", "DWFF(d", blindness),
     ("Invisibility", "PP(w(s", invisibility),
     ("Haste", "PWPWWC", haste),
-    ("Time Stop", "SPPC", time_stop),
     ("Delayed Effect", "DWSSSP", delayed_effect),
     ("Permanency", "SPFPSDW", permanency),
 
