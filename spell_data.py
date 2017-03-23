@@ -23,6 +23,7 @@ EFFECT_DICT = {
     "paralysis": False,
     "confusion": False,
     "amnesia": False,
+    "charm_person": False,
     "permanency": 0,
     "delayed_effect": 0,
     "blindness": 0,

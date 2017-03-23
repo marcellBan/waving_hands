@@ -26,12 +26,16 @@ def play_game():
     while player_one.health > 0 and player_two.health > 0 and \
             not player_one.effects["surrender"] and not player_two.effects["surrender"]:
         # get player inputs, twice if haste is active
-        do_input(player_one, player_two, previous_turn_results[0])
-        if player_one.effects["haste"] > 0:
+        if len(player_one.hands) == 0:
+            do_input(player_one, player_two)
+            do_input(player_two, player_one)
+        else:
             do_input(player_one, player_two, previous_turn_results[0])
-        do_input(player_two, player_one, previous_turn_results[1])
-        if player_two.effects["haste"] > 0:
+            if player_one.effects["haste"] > 0:
+                do_input(player_one, player_two, previous_turn_results[0])
             do_input(player_two, player_one, previous_turn_results[1])
+            if player_two.effects["haste"] > 0:
+                do_input(player_two, player_one, previous_turn_results[1])
         # handle Charm person and paralysis spells' effect
         for p in [player_one, player_two]:
             if p.effects["charm_person"]:
@@ -177,4 +181,5 @@ def main():
         elif answer == "no" or answer == "n":
             running = False
 
-main()
+if __name__ == "__main__":
+    main()

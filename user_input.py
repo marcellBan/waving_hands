@@ -13,7 +13,7 @@ SPACING_BETWEEN_COLUMNS = 10
 DIVIDER_WIDTH = 50
 
 
-def do_input(inputting_player, other_player, previous_turn_results):
+def do_input(inputting_player, other_player, previous_turn_results=None):
     """
         gets a turn input from a player
     """
@@ -104,38 +104,39 @@ def print_input_layout(input_player, other_player, previous_turn_results):
     gestures_to_print = min(len(input_player.hands), MAX_PRINTED_LINES)
     # clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
-    # print previous turn results
-    print("The following happened in the last turn:")
-    # divider
-    print("-" * DIVIDER_WIDTH)
-    for item in previous_turn_results:
-        if item != "":
-            print(item)
-    print("\nThese were the hands played in the previous turns:")
-    # divider
-    print("-" * DIVIDER_WIDTH)
-    # print header with names
-    print("     {0}{1}{2}".format(input_player.name, " " * SPACING_BETWEEN_COLUMNS,
-                                  other_player.name))
-    # print turns
-    for i in range(gestures_to_print):
-        # calculate index to use
-        idx = len(input_player.hands) - gestures_to_print + i
-        input_hand = input_player.get_hand_str(idx)
-        # other player invisible
-        if other_player.hands[idx][0] == "*":
-            print("{1:2d}   {0}".format(input_hand, idx + 1) +
-                  " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
-                         len(input_hand)) +
-                  "-----")
-        # other player visible
-        else:
-            print("{1:2d}   {0}".format(input_hand, idx + 1) +
-                  " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
-                         len(input_hand)) +
-                  "{0}".format(other_player.get_hand_str(idx)))
-    # divider
-    print("-" * DIVIDER_WIDTH)
+    # print previous turn results if there is any
+    if previous_turn_results:
+        print("The following happened in the last turn:")
+        # divider
+        print("-" * DIVIDER_WIDTH)
+        for item in previous_turn_results:
+            if item != "":
+                print(item)
+        print("\nThese were the hands played in the previous turns:")
+        # divider
+        print("-" * DIVIDER_WIDTH)
+        # print header with names
+        print("     {0}{1}{2}".format(input_player.name, " " * SPACING_BETWEEN_COLUMNS,
+                                      other_player.name))
+        # print turns
+        for i in range(gestures_to_print):
+            # calculate index to use
+            idx = len(input_player.hands) - gestures_to_print + i
+            input_hand = input_player.get_hand_str(idx)
+            # other player invisible
+            if other_player.hands[idx][0] == "*":
+                print("{1:2d}   {0}".format(input_hand, idx + 1) +
+                      " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
+                             len(input_hand)) +
+                      "-----")
+            # other player visible
+            else:
+                print("{1:2d}   {0}".format(input_hand, idx + 1) +
+                      " " * (len(input_player.name) + SPACING_BETWEEN_COLUMNS -
+                             len(input_hand)) +
+                      "{0}".format(other_player.get_hand_str(idx)))
+        # divider
+        print("-" * DIVIDER_WIDTH)
     # print both player's health
     print("Your health: {0}     {1}'s health: {2}"
           .format(input_player.health, other_player.name, other_player.health))

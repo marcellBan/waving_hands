@@ -4,6 +4,8 @@
 """
 
 from random import choice
+from copy import deepcopy as dcp
+from spell_data import SPELL_DATA, MAX_GESTURE_LENGTH
 
 
 def parse_for_player(parsed_player):
