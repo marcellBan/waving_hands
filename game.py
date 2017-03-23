@@ -59,6 +59,16 @@ def play_game():
                 p.effects["paralysis"] = False
         # calculate turn results
         previous_turn_results = calc_turn_result(player_one, player_two)
+        for p in [player_one, player_two]:
+            if not p.effects["raise_dead"]:
+                p.health -= p.damage_taken
+            else:
+                if p.health - p.damage_taken > 0:
+                    p.damage_taken -= 5
+                    p.health -= p.damage_taken
+                    if p.health > 15:
+                        p.health = 15
+                p.effects["raise_dead"] = False
     do_game_end(player_one, player_two)
 
 
