@@ -6,6 +6,7 @@
 
 import os
 from copy import deepcopy as dcp
+from random import choice
 from player import Player
 from spells import SPELL_DATA, EFFECT_DICT
 
@@ -28,8 +29,35 @@ def play_game():
     previous_turn_results = list()
     while player_one.health > 0 and player_two.health > 0 and \
             not player_one.effects["surrender"] and not player_two.effects["surrender"]:
+        # get player inputs, twice if haste is active
         do_input(player_one, player_two, previous_turn_results[0])
+        if player_one.effects["haste"] > 0:
+            do_input(player_one, player_two, previous_turn_results[0])
         do_input(player_two, player_one, previous_turn_results[1])
+        if player_two.effects["haste"] > 0:
+            do_input(player_two, player_one, previous_turn_results[1])
+        # handle Charm person and paralysis spells' effect
+        for p in [player_one, player_two]:
+            if p.effects["charm_person"]:
+                tmp = list(p.hands[-1])
+                if p.affected_hand == "l":
+                    tmp[1] = p.new_gesture
+                else:
+                    tmp[2] = p.new_gesture
+                p.hands[-1] = tuple(tmp)
+                p.affected_hand = None
+                p.new_gesture = ""
+                p.effects["charm_person"] = False
+            if p.effects["paralysis"]:
+                tmp = list(p.hands[-1])
+                if p.affected_hand == "l":
+                    tmp[1] = swap_gesture(tmp[1])
+                else:
+                    tmp[2] = swap_gesture(tmp[2])
+                p.hands[-1] = tuple(tmp)
+                p.affected_hand = None
+                p.effects["paralysis"] = False
+        # calculate turn results
         previous_turn_results = calc_turn_result(player_one, player_two)
     do_game_end(player_one, player_two)
 
@@ -40,27 +68,81 @@ def do_input(inputting_player, other_player, previous_turn_results):
     """
     # print previous turns
     print_input_layout(inputting_player, other_player, previous_turn_results)
-    # get valid input from player
-    print(
-        "Valid gesture format: X-Y | where X and Y are from [' ','stab','S','D','W','P','F','C']")
-    gesture = input(inputting_player.name + ", please enter your gesture for this turn: ")
-    while not is_valid_gesture(gesture):
-        gesture = input(inputting_player.name + ", please enter a valid gesture: ")
-    inputting_player.add_hand(gesture, other_player.effects["Blindness"] > 0)
+    # check for amnesia
+    if not inputting_player.effects["amnesia"]:
+        # get valid input from player
+        print(
+            "Valid gesture format: X-Y | where X and Y are from [' ','stab','S','D','W','P','F','C']")
+        gesture = input(inputting_player.name + ", please enter your gesture for this turn: ")
+        while not is_valid_gesture(gesture, inputting_player.effects["fear"]):
+            gesture = input(inputting_player.name + ", please enter a valid gesture: ")
+        inputting_player.effects["fear"] = False
+        # confusion effect
+        if inputting_player.effects["confusion"]:
+            gesture = alter_gesture(gesture, choice([True, False]), choice(["C", "D", "S", "W", "F", "P"]))
+            if inputting_player.permanent != "confusion":
+                inputting_player["confusion"] = False
+    else:
+        print("You are affected by Amnesia this turn, your gesture will be the same as last turn.")
+        gesture = inputting_player.get_hand_str(-1)
+        if inputting_player.permanent != "amnesia":
+            inputting_player["amnesia"] = False
+    # get gesture for Charm person spell's effect
+    if other_player.effects["charm_person"]:
+        chosen_gesture = None
+        while chosen_gesture not in ["stab", " "]:
+            chosen_gesture = input("Choose a gesture for " + other_player.name + "'s " +
+                                   "left" if other_player.affected_hand == "l" else "right" + " hand. (stab/ )\n")
+        other_player.new_gesture = chosen_gesture
+    inputting_player.add_hand(gesture, other_player.effects["blindness"] > 0)
 
 
-def is_valid_gesture(gesture):
+def swap_gesture(gesture):
+    """swaps a gesture for paralysis"""
+    swap_dict = {
+        "C": "F",
+        "S": "D",
+        "W": "P",
+        "P": "P",
+        "D": "D",
+        "F": "F",
+        " ": " ",
+        "stab": "stab"
+    }
+    return swap_dict[gesture]
+
+
+def alter_gesture(gesture, hand, new_gesture):
+    """
+        changes the gesture on the given hand to the new gesture and returns it\n
+        hand = True  --> left hand\n
+        hand = False --> right hand
+    """
+    tmp = gesture.split('-')
+    if hand:
+        tmp[0] = new_gesture
+    else:
+        tmp[1] = new_gesture
+    return "-".join(tmp)
+
+
+def is_valid_gesture(gesture, fear):
     """
         checks the validity of a given gesture
     """
-    valid_gestures = [
-        # non-gestures
-        " ", "stab",
-        # one handed gestures
-        "F", "P", "S", "W", "D",
-        # two handed gestures
-        "C"
-    ]
+    if fear:
+        valid_gestures = [
+            " ", "P", "stab", "W"
+        ]
+    else:
+        valid_gestures = [
+            # non-gestures
+            " ", "stab",
+            # one handed gestures
+            "F", "P", "S", "W", "D",
+            # two handed gestures
+            "C"
+        ]
     ges = gesture.split('-')
     # exactly 2 hands?
     if len(ges) != 2:
@@ -156,34 +238,26 @@ def handle_effects(p_one, p_two):
     """
         calculatates the effect changes on the players
     """
-    # disease effect
-    if p_one.effects["disease"] > 1:
-        p_one.effects["disease"] -= 1
-    elif p_one.effects["disease"] == 1:
-        p_one.health = 0
-    if p_two.effects["disease"] > 1:
-        p_two.effects["disease"] -= 1
-    elif p_two.effects["disease"] == 1:
-        p_two.health = 0
-    # poison effect
-    if p_one.effects["poison"] > 1:
-        p_one.effects["poison"] -= 1
-    elif p_one.effects["poison"] == 1:
-        p_one.health = 0
-    if p_two.effects["poison"] > 1:
-        p_two.effects["poison"] -= 1
-    elif p_two.effects["poison"] == 1:
-        p_two.health = 0
-    # protection from evil effect
-    if p_one.effects["protection_from_evil"] > 0:
-        p_one.effects["protection_from_evil"] -= 1
-    if p_two.effects["protection_from_evil"] > 0:
-        p_two.effects["protection_from_evil"] -= 1
-    # blindness effect
-    if p_one.effects["blindness"] > 0:
-        p_one.effects["blindness"] -= 1
-    if p_two.effects["blindness"] > 0:
-        p_two.effects["blindness"] -= 1
+    for p in [p_one, p_two]:
+        # disease effect
+        if p.effects["disease"] > 1:
+            p.effects["disease"] -= 1
+        elif p.effects["disease"] == 1:
+            p.health = 0
+        # poison effect
+        if p.effects["poison"] > 1:
+            p.effects["poison"] -= 1
+        elif p.effects["poison"] == 1:
+            p.health = 0
+        # protection from evil effect
+        if p.effects["protection_from_evil"] > 0:
+            p.effects["protection_from_evil"] -= 1
+        # blindness effect
+        if p.effects["blindness"] > 0:
+            p.effects["blindness"] -= 1
+        # haste effect
+        if p.effects["haste"] > 0:
+            p.effects["haste"] -= 1
 
 
 def parse_for_player(parsed_player):

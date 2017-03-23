@@ -25,6 +25,16 @@ def check_reflection(target_player, non_target_player):
     return target_player, non_target_player
 
 
+def choose_hand(non_target_player, target_player, spell_name):
+    """prompts the player to choose one of the hands of the other player to be affected"""
+    while True:
+        hand = input(non_target_player.name + " choose which hand of " +
+                     target_player.name + " do you want to affect with" + spell_name + " spell! (l/r)\n").lower()
+        if hand == "l" or hand == "r":
+            target_player.affected_hand = hand
+            return
+
+
 def check_counter_spell(player):
     """checks if the player casted counter spell"""
     if "Counter-Spell" in player.spell_to_cast:
@@ -72,8 +82,7 @@ def init_effects(casting_player, other_player):
 
 def get_visible_results(casting_player, other_player, spell_result, always_visible=False, target_player=None):
     """returns a tuple of what the players saw from this spell cast"""
-    if (casting_player.effects["invisible"] or
-            other_player.effects["blindness"] > 0) \
+    if (other_player.effects["blindness"] > 0) \
             and (not always_visible and target_player != other_player):
         spell_result[1] = ""
     if casting_player.effects["blindness"] > 0 \
@@ -341,62 +350,46 @@ def confusion(casting_player, other_player):  # Only reflectable
 
 
 def charm_person(casting_player, other_player):
-    """gestures P-S-D-F. Except for cancellation with other enchantments, this spell only affects
-    humans. The subject is told which of his hands will be controlled at the time the spell hits,
-    and in the following turn, the caster of the spell writes down the gesture he wants the subject's
-    named hand to perform. This could be a stab or nothing. If the subject is only so because of a
-    reflection from a magic mirror the subject of the mirror assumes the role of caster and writes
-    down his opponent's gesture. If the subject is also the subject of any of amnesia, confusion,
-    charm monster, paralysis or fear, none of the spells work."""
-    chosen_player, _ = check_reflection(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player) \
-            and not chosen_player.effects["amnesia"] \
-            and not chosen_player.effects["confusion"] \
-            and not chosen_player.effects["paralysis"] \
-            and not chosen_player.effects["fear"]:
-        chosen_player.effects["charm_person"] = True
-        res = ["Charm Person casted on " + chosen_player.name] * 2
+    """Charm person spell"""
+    target_player, non_target_player = check_reflection(other_player, casting_player)
+    if not check_remove_enchantment(target_player) \
+            and not check_dispel_magic(target_player) \
+            and not check_counter_spell(target_player) \
+            and not target_player.effects["amnesia"] \
+            and not target_player.effects["confusion"] \
+            and not target_player.effects["paralysis"] \
+            and not target_player.effects["fear"]:
+        target_player.effects["charm_person"] = True
+        choose_hand(non_target_player, target_player, "Charm person")
+        res = ["Charm Person casted on " + target_player.name] * 2
         vis = True
     else:
-        res = ["Charm Person could not be casted on " + chosen_player.name] * 2
+        res = ["Charm Person could not be casted on " + target_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, target_player)
 
 
-def paralysis(casting_player, other_player):  # Only reflectable
-    """gestures F-F-F. If the subject of the spell is a wizard, then on the turn the spell is cast,
-    after gestures have been revealed, the caster selects one of the wizard's hands and on the next
-    turn that hand is paralyzed into the position it is in this turn. If the wizard already had a
-    paralyzed hand, it must be the same hand which is paralyzed again. Certain gestures remain the
-    same but if the hand being paralyzed is performing a C, S or W it is instead paralyzed into
-    F, D or P respectively, otherwise it will remain in the position written down (this allows repeated stabs).
-    A favourite ploy is to continually paralyze a hand (F-F-F-F-F-F etc.) into a non-P gesture and then set a
-    monster on the subject so that he has to use his other hand to protect himself, but then has no defence
-    against other magical attacks. If the subject of the spell is a monster (excluding elementals which are
-    unaffected) it simply does not attack in the turn following the one in which the spell was cast.
-    If the subject of the spell is also the subject of any of amnesia, confusion, charm person,
-    charm monster or fear, none of the spells work."""
-    targeted_player, _ = check_reflection(casting_player, other_player)
-    if not check_remove_enchantment(targeted_player) \
-            and not check_dispel_magic(targeted_player) \
-            and not check_counter_spell(targeted_player) \
-            and not targeted_player.effects["amnesia"] \
-            and not targeted_player.effects["confusion"] \
-            and not targeted_player.effects["charm_person"] \
-            and not targeted_player.effects["fear"]:
-
-        targeted_player.effects["paralysis"] = True
-        res = ["Paralysis casted on " + targeted_player.name] * 2
+def paralysis(casting_player, other_player):
+    """Paralysis spell"""
+    target_player, non_target_player = check_reflection(other_player, casting_player)
+    if not check_remove_enchantment(target_player) \
+            and not check_dispel_magic(target_player) \
+            and not check_counter_spell(target_player) \
+            and not target_player.effects["amnesia"] \
+            and not target_player.effects["confusion"] \
+            and not target_player.effects["charm_person"] \
+            and not target_player.effects["fear"]:
+        target_player.effects["paralysis"] = True
+        choose_hand(non_target_player, target_player, "Paralysis")
+        res = ["Paralysis casted on " + target_player.name] * 2
         vis = True
     else:
-        res = ["Paralysis could not be casted on " + targeted_player.name] * 2
+        res = ["Paralysis could not be casted on " + target_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
+    return get_visible_results(casting_player, other_player, res, vis, target_player)
 
 
-def fear(casting_player, other_player):  # Only reflectable
+def fear(casting_player, other_player):
     """gestures S-W-D. In the turn following the casting of this spell,
     the subject cannot perform a C, D, F or S gesture. This obviously
     has no effect on monsters. If the subject is also the subject of
@@ -419,26 +412,7 @@ def fear(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def anti_spell(casting_player, other_player):  # Only reflectable
-    """gestures S-P-F. On the turn following the casting of this spell,
-    the subject cannot include any gestures made on or before this turn
-    in a spell sequence and must restart a new spell from the beginning
-    of that spell sequence. The spell does not affect spells which are
-    cast on the same turn nor does it affect monsters."""
-    targeted_player, _ = check_reflection(casting_player, other_player)
-    if not check_remove_enchantment(targeted_player) \
-            and not check_dispel_magic(targeted_player) \
-            and not check_counter_spell(targeted_player):
-        targeted_player.effects["anti_spell"] = True
-        res = ["Anti-spell casted on " + targeted_player.name] * 2
-        vis = True
-    else:
-        res = ["Anti-spell could not be casted on " + targeted_player.name] * 2
-        vis = False
-    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
-
-
-def protection_from_evil(casting_player, other_player):  # Neither reflectable, nor choosable
+def protection_from_evil(casting_player, other_player):
     """Protection From Evil spell"""
     if not check_remove_enchantment(other_player) \
             and not check_dispel_magic(other_player) \
@@ -511,19 +485,14 @@ def poison(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def blindness(casting_player, other_player):  # Only reflectable
-    """gestures D-W-F-F-(d. For the next 3 turns not including the one in which the spell was cast, the subject
-    is unable to see. If he is a wizard, he cannot tell what his opponent's gestures are, although he must be informed
-    of any which affect him (e.g. summons spells, missile etc cast at him) but not counter- spells to his own attacks.
-    Indeed he will not know if his own spells work unless they also affect him (e.g. a fire storm when he isn't
-    resistant to fire.) He can control his monsters (e.g. "Attack whatever it was that just attacked me"). Blinded
-    monsters are instantly destroyed and cannot attack in that turn."""
-    targeted_player, _ = check_reflection(casting_player, other_player)
-    if not check_remove_enchantment(targeted_player) \
-            and not check_dispel_magic(targeted_player) \
-            and not check_counter_spell(targeted_player):
-        targeted_player.effects["blindness"] = 3
-        res = ["Blindness casted on " + targeted_player.name] * 2
+def blindness(casting_player, other_player):
+    """Blindness spell"""
+    chosen_player = choose_target_player(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
+        chosen_player.effects["blindness"] = 3
+        res = ["Blindness casted on " + chosen_player.name] * 2
         vis = True
     else:
         res = ["Blindness could not be casted on " + targeted_player.name] * 2
@@ -545,18 +514,14 @@ def invisibility(casting_player, other_player):  # Neither reflectable, nor choo
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def haste(casting_player, other_player):  # Neither reflectable, nor choosable
-    """gestures P-W-P-W-W-C. For the next 3 turns, the subject (but not his monsters if a wizard) makes an extra set of
-    gestures due to being speeded up. This takes effect in the following turn so that instead of giving one pair of
-    gestures, 2 are given, the effect of both being taken simultaneously at the end of the turn. Thus a single
-    counter-spell from his adversary could cancel 2 spells cast by the hastened wizard on 2 half-turns if the phasing is
-    right. Non-hastened wizards and monsters can see everything the hastened individual is doing. Hastened monsters can
-    change target in the extra turns if desired."""
-    if not check_remove_enchantment(other_player) \
-            and not check_dispel_magic(other_player) \
-            and not check_counter_spell(other_player):
-        other_player.effects["haste"] = 3
-        res = ["Haste casted on " + other_player.name] * 2
+def haste(casting_player, other_player):
+    """Haste spell"""
+    chosen_player = choose_target_player(casting_player, other_player)
+    if not check_remove_enchantment(chosen_player) \
+            and not check_dispel_magic(chosen_player) \
+            and not check_counter_spell(chosen_player):
+        chosen_player.effects["haste"] = 3
+        res = ["Haste casted on " + chosen_player.name] * 2
         vis = True
     else:
         res = ["Haste could not be casted on " + other_player.name] * 2
@@ -564,25 +529,7 @@ def haste(casting_player, other_player):  # Neither reflectable, nor choosable
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def time_stop(casting_player, other_player):  # Neither reflectable, nor choosable
-    """gestures S-P-P-C. The subject of this spell immediately takes an extra turn, on which no-one can see or know
-    about unless they are harmed. All non-affected beings have no resistance to any form of attack, e.g. a wizard
-    halfway through the duration of a protection from evil spell can be harmed by a monster which has had its time
-    stopped. Time-stopped monsters attack whoever their controller instructs, and time-stopped elementals affect
-    everyone, resistance to heat or cold being immaterial in that turn."""
-    if not check_remove_enchantment(other_player) \
-            and not check_dispel_magic(other_player) \
-            and not check_counter_spell(other_player):
-        other_player.effects["time_stop"] = True
-        res = ["Time Stop on " + other_player.name] * 2
-        vis = True
-    else:
-        res = ["Time Stop could not be casted on " + other_player.name] * 2
-        vis = False
-    return get_visible_results(casting_player, other_player, res, vis)
-
-
-def delayed_effect(casting_player, other_player):  # Neither reflectable, nor choosable
+def delayed_effect(casting_player, other_player):
     """gestures D-W-S-S-S-P. This spell only works if cast upon a wizard. The next spell he completes, provided it is on
     this turn or one of the next 3 is "banked" until needed, i.e. it fails to work until its caster desires. This next
     spell which is to be banked does not include the actual spell doing the banking. The spell must be written down to
@@ -667,7 +614,6 @@ EFFECT_DICT = {
     "resist_cold": False,
     "poison": 0,
     # new effects:
-    "anti_spell": False,
     "fear": False,
     "paralysis": False,
     "confusion": False,
