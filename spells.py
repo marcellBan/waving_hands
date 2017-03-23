@@ -33,6 +33,28 @@ def check_remove_enchantment(player):
     return False
 
 
+def init_effects(casting_player, other_player):
+    player = [casting_player, other_player]
+    for i in player:
+        player.effects["disease"] = False
+        player.effects["invisible"] = False
+        player.effects["protection_from_evil"] = 0
+        player.effects["resist_heat"] = False
+        player.effects["resist_cold"] = False
+        player.effects["poison"] = False
+        player.effects["anti_spell"] = False
+        player.effects["fear"] = False
+        player.effects["paralysis"] = False
+        player.effects["charm_person"] = False
+        player.effects["confusion"] = False
+        player.effects["amnesia"] = False
+        player.effects["permanency"] = 0
+        player.effects["delayed_effect"] = 0
+        player.effects["blindness"] = 0
+        player.effects["haste"] = 0
+        player.effects["time_stop"] = False
+
+
 def get_visible_results(casting_player, other_player, spell_result, always_visible=False, target_player=None):
     """returns a tuple of what the players saw from this spell cast"""
     if (casting_player.effects["invisible"] or
@@ -54,16 +76,11 @@ def shield(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def remove_enchantment(casting_player, other_player):  # TODO: add new effects
+def remove_enchantment(casting_player, other_player): 
     """Remove Enchantment spell"""
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_counter_spell(chosen_player):
-        casting_player.effects["invisible"] = False
-        casting_player.effects["protection_from_evil"] = 0
-        casting_player.effects["resist_heat"] = False
-        casting_player.effects["resist_cold"] = False
-        casting_player.effects["disease"] = False
-        casting_player.effects["poison"] = False
+        init_effects(casting_player, other_player)
         res = ["Effects and enchantments are removed from: " + chosen_player.name] * 2
         vis = True
     else:
@@ -93,23 +110,9 @@ def counter_spell(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def dispel_magic(casting_player, other_player):  # TODO: add new effects
+def dispel_magic(casting_player, other_player):
     """Dispel Magic spell"""
-    casting_player.effects["invisible"] = False
-    casting_player.effects["protection_from_evil"] = 0
-    casting_player.effects["resist_heat"] = False
-    casting_player.effects["resist_cold"] = False
-    casting_player.effects["disease"] = False
-    casting_player.effects["poison"] = False
-    casting_player.effects["blindness"] = 0
-    # other player
-    other_player.effects["invisible"] = False
-    other_player.effects["protection_from_evil"] = 0
-    other_player.effects["resist_heat"] = False
-    other_player.effects["resist_cold"] = False
-    other_player.effects["disease"] = False
-    other_player.effects["poison"] = False
-    other_player.effects["blindness"] = 0
+    init_effects(casting_player, other_player)
     res = [casting_player.name + ": Dispel Magic casted"] * 2
     return get_visible_results(casting_player, other_player, res)
 
@@ -274,9 +277,10 @@ def ice_storm(casting_player, other_player):
 
 def amnesia(casting_player, other_player):
     """gestures D-P-P. If the subject of this spell is a wizard, next turn he must repeat
-    identically the gestures he made in the current turn, including stabs. If the subject is a monster it will
-    attack whoever it attacked this turn. If the subject is simultaneously the subject of any of
-    confusion, charm person, charm monster, paralysis or fear then none of the spells work."""
+    identically the gestures he made in the current turn, including stabs. If the subject is a
+    monster it will attack whoever it attacked this turn. If the subject is simultaneously the
+    subject of any of confusion, charm person, charm monster, paralysis or fear then none of
+    the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
@@ -647,7 +651,6 @@ def surrender(casting_player, other_player):
 EFFECT_DICT = {
     # effects:
     "disease": 0,
-    "surrender": False,
     "invisible": False,
     "protection_from_evil": 0,
     "resist_heat": False,
@@ -664,7 +667,8 @@ EFFECT_DICT = {
     "delayed_effect": 0,
     "blindness": 0,
     "haste": 0,
-    "time_stop": False
+    "time_stop": False,
+    "surrender": False
 }
 
 SPELL_DATA = [
