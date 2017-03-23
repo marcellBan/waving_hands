@@ -179,10 +179,10 @@ def handle_effects(p_one, p_two):
     if p_two.effects["protection_from_evil"] > 0:
         p_two.effects["protection_from_evil"] -= 1
     # blindness effect
-    if p_one.effects["Blindness"] > 0:
-        p_one.effects["Blindness"] -= 1
-    if p_two.effects["Blindness"] > 0:
-        p_two.effects["Blindness"] -= 1
+    if p_one.effects["blindness"] > 0:
+        p_one.effects["blindness"] -= 1
+    if p_two.effects["blindness"] > 0:
+        p_two.effects["blindness"] -= 1
 
 
 def parse_for_player(parsed_player):
@@ -222,7 +222,7 @@ def parse_for_player(parsed_player):
             parsed_player.spell_to_cast.append("Surrender")
         else:
             resolve_conflicts(parsed_player, left_hand, right_hand)
-    
+
 
 def resolve_conflicts(parsed_player, left_hand, right_hand):
     """
