@@ -11,8 +11,12 @@ class Player(object):
 
     def __init__(self, effects, health=15):
         self.health = health
-        self.hands = []  # (* or _, left, right)
-        self.spell_to_cast = []
+        self.hands = list()  # (* or _, left, right)
+        self.spell_to_cast = list()
+        self.permanent = ""
+        self.banked = ""
+        self.affected_hand = None
+        self.new_gesture = ""
         self.effects = effects
         self.name = input("Enter a player name: ")
 
