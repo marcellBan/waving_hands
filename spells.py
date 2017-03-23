@@ -34,6 +34,7 @@ def check_remove_enchantment(player):
 
 
 def get_visible_results(casting_player, other_player, spell_result, always_visible=False, target_player=None):
+    """returns a tuple of what the players saw from this spell cast"""
     if (casting_player.effects["invisible"] or
             other_player.effects["blindness"] > 0) \
             and (not always_visible and target_player != other_player):
@@ -272,8 +273,8 @@ def ice_storm(casting_player, other_player):
 
 
 def amnesia(casting_player, other_player):
-    """gestures D-P-P. If the subject of this spell is a wizard, next turn he must repeat identically
-    the gestures he made in the current turn, including stabs. If the subject is a monster it will
+    """gestures D-P-P. If the subject of this spell is a wizard, next turn he must repeat
+    identically the gestures he made in the current turn, including stabs. If the subject is a monster it will
     attack whoever it attacked this turn. If the subject is simultaneously the subject of any of
     confusion, charm person, charm monster, paralysis or fear then none of the spells work."""
     chosen_player = choose_target_player(casting_player, other_player)
@@ -318,7 +319,7 @@ def confusion(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
-def charm_person(casting_player, other_playe):
+def charm_person(casting_player, other_player):
     """gestures P-S-D-F. Except for cancellation with other enchantments, this spell only affects
     humans. The subject is told which of his hands will be controlled at the time the spell hits,
     and in the following turn, the caster of the spell writes down the gesture he wants the subject's
@@ -340,7 +341,7 @@ def charm_person(casting_player, other_playe):
     else:
         res = ["Charm Person could not be casted on " + chosen_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_playe, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def paralysis(casting_player, other_player):
@@ -397,7 +398,7 @@ def fear(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
-def anti_spell(casting_player, other_player):  # TODO:
+def anti_spell(casting_player, other_player):
     """gestures S-P-F. On the turn following the casting of this spell,
     the subject cannot include any gestures made on or before this turn
     in a spell sequence and must restart a new spell from the beginning
@@ -578,12 +579,13 @@ def delayed_effect(casting_player, other_player):
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
-        chosen_player.effects["delayed_effect"] = 3  # TODO good?
+        chosen_player.effects["delayed_effect"] = 3
         res = ["Delayed Effect casted on " + chosen_player.name] * 2
         vis = True
     else:
         res = ["Delayed Effect could not be casted on " + chosen_player.name] * 2
         vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 def permanency(casting_player, other_player):
@@ -607,6 +609,7 @@ def permanency(casting_player, other_player):
     else:
         res = ["Permanency could not be casted on " + chosen_player.name] * 2
         vis = False
+    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
 # Non-spells
@@ -616,8 +619,9 @@ def stab(casting_player, other_player):
     """Stab no-spell"""
     if "Shield" not in other_player.spell_to_cast \
             and "Protection From Evil" not in other_player.spell_to_cast \
+            and other_player.effects["protection_from_evil"] == 0 \
             and not check_counter_spell(other_player) \
-            and not check_dispel_magic(other_player):  # TODO: pfe check other.effect for pfe > 0
+            and not check_dispel_magic(other_player):
         other_player.health -= 1
         res = [casting_player.name + " stabbed " + other_player.name] * 2
         vis = True
@@ -660,7 +664,7 @@ EFFECT_DICT = {
     "delayed_effect": 0,
     "blindness": 0,
     "haste": 0,
-    "time_stop", False
+    "time_stop": False
 }
 
 SPELL_DATA = [

@@ -91,7 +91,8 @@ def print_input_layout(input_player, other_player, previous_turn_results):
     # divider
     print("-" * DIVIDER_WIDTH)
     for item in previous_turn_results:
-        print(item) if item != "" else pass
+        if item != "":
+            print(item)
     print("\nThese were the hands played in the previous turns:")
     # divider
     print("-" * DIVIDER_WIDTH)
