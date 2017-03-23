@@ -153,7 +153,9 @@ def raise_dead(casting_player, other_player):  # Neither reflectable, nor choosa
     their subject. If the spell is cast on a live individual, the effect is that of a cure light wounds recovering five
     points of damage, or as many as have been sustained if less than five. Note that any diseases the live subject might
     have are not cured."""
-    pass  # TODO: implement
+    casting_player.effects["raise_dead"] = True
+    res = [casting_player.name + ": Raise Dead casted"] * 2
+    return get_visible_results(casting_player, other_player, res)
 
 
 def cure_light_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
@@ -311,10 +313,10 @@ def amnesia(casting_player, other_player):  # Only reflectable
     if not check_remove_enchantment(targeted_player) \
             and not check_dispel_magic(targeted_player) \
             and not check_counter_spell(targeted_player) \
-            and not targeted_player.effects["confusion"] \
-            and not targeted_player.effects["charm_person"] \
-            and not targeted_player.effects["paralysis"] \
-            and not targeted_player.effects["fear"]:
+            and "Confusion" not in targeted_player.spell_to_cast \
+            and "Charm Person" not in targeted_player.spell_to_cast \
+            and "Paralysis" not in targeted_player.spell_to_cast \
+            and "Fear" not in targeted_player.spell_to_cast:
         targeted_player.effects["amnesia"] = True
         res = ["Amnesia casted on " + targeted_player.name] * 2
         vis = True
@@ -336,10 +338,10 @@ def confusion(casting_player, other_player):  # Only reflectable
     if not check_remove_enchantment(targeted_player) \
             and not check_dispel_magic(targeted_player) \
             and not check_counter_spell(targeted_player) \
-            and not targeted_player.effects["amnesia"] \
-            and not targeted_player.effects["charm_person"] \
-            and not targeted_player.effects["paralysis"] \
-            and not targeted_player.effects["fear"]:
+            and "Amnesia" not in targeted_player.spell_to_cast \
+            and "Charm Person" not in targeted_player.spell_to_cast \
+            and "Paralysis" not in targeted_player.spell_to_cast \
+            and "Fear" not in targeted_player.spell_to_cast:
         targeted_player.effects["confusion"] = True
         res = ["Confusion casted on " + targeted_player.name] * 2
         vis = True
@@ -355,10 +357,10 @@ def charm_person(casting_player, other_player):
     if not check_remove_enchantment(target_player) \
             and not check_dispel_magic(target_player) \
             and not check_counter_spell(target_player) \
-            and not target_player.effects["amnesia"] \
-            and not target_player.effects["confusion"] \
-            and not target_player.effects["paralysis"] \
-            and not target_player.effects["fear"]:
+            and "Amnesia" not in target_player.spell_to_cast \
+            and "Confusion" not in target_player.spell_to_cast \
+            and "Paralysis" not in target_player.spell_to_cast \
+            and "Fear" not in target_player.spell_to_cast:
         target_player.effects["charm_person"] = True
         choose_hand(non_target_player, target_player, "Charm person")
         res = ["Charm Person casted on " + target_player.name] * 2
@@ -375,10 +377,10 @@ def paralysis(casting_player, other_player):
     if not check_remove_enchantment(target_player) \
             and not check_dispel_magic(target_player) \
             and not check_counter_spell(target_player) \
-            and not target_player.effects["amnesia"] \
-            and not target_player.effects["confusion"] \
-            and not target_player.effects["charm_person"] \
-            and not target_player.effects["fear"]:
+            and "Amnesia" not in target_player.spell_to_cast \
+            and "Confusion" not in target_player.spell_to_cast \
+            and "Charm_person" not in target_player.spell_to_cast \
+            and "Fear" not in target_player.spell_to_cast:
         target_player.effects["paralysis"] = True
         choose_hand(non_target_player, target_player, "Paralysis")
         res = ["Paralysis casted on " + target_player.name] * 2
@@ -399,10 +401,10 @@ def fear(casting_player, other_player):
     if not check_remove_enchantment(targeted_player) \
             and not check_dispel_magic(targeted_player) \
             and not check_counter_spell(targeted_player) \
-            and not targeted_player.effects["amnesia"] \
-            and not targeted_player.effects["confusion"] \
-            and not targeted_player.effects["charm_person"] \
-            and not targeted_player.effects["paralysis"]:
+            and "Amnesia" not in targeted_player.spell_to_cast \
+            and "Confusion" not in targeted_player.spell_to_cast \
+            and "Charm_person" not in targeted_player.spell_to_cast \
+            and "Paralysis" not in targeted_player.spell_to_cast:
         targeted_player.effects["fear"] = True
         res = ["Fear casted on " + targeted_player.name] * 2
         vis = True
