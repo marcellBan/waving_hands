@@ -11,6 +11,7 @@ class Player(object):
 
     def __init__(self, effects, health=15):
         self.health = health
+        self.damage_taken = 0
         self.hands = []  # (* or _, left, right)
         self.spell_to_cast = []
         self.effects = effects

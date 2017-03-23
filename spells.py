@@ -4,12 +4,25 @@
 """
 
 
-def choose_target_player(casting_player, other_player):
-    """returns the target player depending on the existence of magic mirror"""
-    if not check_counter_spell(casting_player) and not check_dispel_magic(casting_player):
-        if "Magic Mirror" in other_player.spell_to_cast:
-            return casting_player
-    return other_player
+def choose_target(casting_player, other_player):
+    """prompt player to choose target, returns the target and non target player in a tuple"""
+    while True:
+        answer = input(casting_player.name +
+                       ": Choose your target: s = self, o = opponent\n").lower()
+        if answer == "s":
+            return check_reflection(casting_player, other_player)
+        elif answer == "o":
+            return check_reflection(other_player, casting_player)
+
+
+def check_reflection(target_player, non_target_player):
+    """returns the tharget and non target players in a tuple"""
+    if not check_counter_spell(non_target_player) and not check_dispel_magic(non_target_player):
+        if "Magic Mirror" in target_player.spell_to_cast:
+            # magic mirror effective, reflection happened
+            return non_target_player, target_player
+    # no reflection happened
+    return target_player, non_target_player
 
 
 def check_counter_spell(player):
@@ -34,25 +47,27 @@ def check_remove_enchantment(player):
 
 
 def init_effects(casting_player, other_player):
-    player = [casting_player, other_player]
-    for i in player:
-        player.effects["disease"] = False
-        player.effects["invisible"] = False
-        player.effects["protection_from_evil"] = 0
-        player.effects["resist_heat"] = False
-        player.effects["resist_cold"] = False
-        player.effects["poison"] = False
-        player.effects["anti_spell"] = False
-        player.effects["fear"] = False
-        player.effects["paralysis"] = False
-        player.effects["charm_person"] = False
-        player.effects["confusion"] = False
-        player.effects["amnesia"] = False
-        player.effects["permanency"] = 0
-        player.effects["delayed_effect"] = 0
-        player.effects["blindness"] = 0
-        player.effects["haste"] = 0
-        player.effects["time_stop"] = False
+    for i in [casting_player, other_player]:
+        i.effects["disease"] = False
+        i.effects["invisible"] = False
+        i.effects["protection_from_evil"] = 0
+        i.effects["resist_heat"] = False
+        i.effects["resist_cold"] = False
+        i.effects["poison"] = False
+        i.effects["anti_spell"] = False
+        i.effects["fear"] = False
+        i.effects["paralysis"] = False
+        i.effects["charm_person"] = False
+        i.effects["confusion"] = False
+        i.effects["amnesia"] = False
+        i.effects["permanency"] = 0
+        i.effects["delayed_effect"] = 0
+        i.effects["blindness"] = 0
+        i.effects["haste"] = 0
+        i.effects["time_stop"] = False
+        # permanent and banked spells
+        i.permanent = ""
+        i.banked = ""
 
 
 def get_visible_results(casting_player, other_player, spell_result, always_visible=False, target_player=None):
@@ -76,20 +91,20 @@ def shield(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def remove_enchantment(casting_player, other_player): 
+def remove_enchantment(casting_player, other_player):  # Both choosable and reflectable
     """Remove Enchantment spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_counter_spell(chosen_player):
+    targeted_player, _ = choose_target(casting_player, other_player)
+    if not check_counter_spell(targeted_player):
         init_effects(casting_player, other_player)
-        res = ["Effects and enchantments are removed from: " + chosen_player.name] * 2
+        res = ["Effects and enchantments are removed from: " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Effects and enchantments could no be removed from: " + chosen_player.name] * 2
+        res = ["Effects and enchantments could no be removed from: " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def magic_mirror(casting_player, other_player):
+def magic_mirror(casting_player, other_player):  # Neither reflectable, nor choosable
     """Magic Mirror spell"""
     if not check_counter_spell(other_player) \
             and not check_dispel_magic(other_player) \
@@ -101,7 +116,7 @@ def magic_mirror(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def counter_spell(casting_player, other_player):
+def counter_spell(casting_player, other_player):  # Neither reflectable, nor choosable
     """Counter Spell spell"""
     if not check_dispel_magic(other_player):
         res = [casting_player.name + ": Counter Spell used"] * 2
@@ -110,14 +125,14 @@ def counter_spell(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def dispel_magic(casting_player, other_player):
+def dispel_magic(casting_player, other_player):  # Neither reflectable, nor choosable
     """Dispel Magic spell"""
     init_effects(casting_player, other_player)
     res = [casting_player.name + ": Dispel Magic casted"] * 2
     return get_visible_results(casting_player, other_player, res)
 
 
-def raise_dead(casting_player, other_player):  # TODO: implement
+def raise_dead(casting_player, other_player):  # Neither reflectable, nor choosable
     """gestures D-W-W-F-W-C. The subject of this spell is usually a recently-dead (not yet decomposing) human corpse
     though it may be used on a dead monster. When the spell is cast, life returns to the corpse and all damage is cured.
     All enchantments are also removed (as per the spell) so any diseases or poisons will be neutralized and all other
@@ -129,10 +144,10 @@ def raise_dead(casting_player, other_player):  # TODO: implement
     their subject. If the spell is cast on a live individual, the effect is that of a cure light wounds recovering five
     points of damage, or as many as have been sustained if less than five. Note that any diseases the live subject might
     have are not cured."""
-    pass
+    pass  # TODO: implement
 
 
-def cure_light_wounds(casting_player, other_player):
+def cure_light_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
     """Cure Light Wounds spell"""
     if casting_player.health < 15:
         casting_player.health += 1
@@ -142,7 +157,7 @@ def cure_light_wounds(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def cure_heavy_wounds(casting_player, other_player):
+def cure_heavy_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
     """Cure Heavy Wounds spell"""
     if casting_player.health < 14:
         casting_player.health += 2
@@ -159,91 +174,91 @@ def cure_heavy_wounds(casting_player, other_player):
 # Damaging:
 
 
-def missile(casting_player, other_player):
+def missile(casting_player, other_player):  # Only reflectable
     """Missile spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if "Shield" not in chosen_player.spell_to_cast \
-            and "Protection From Evil" not in chosen_player.spell_to_cast\
-            and chosen_player.effect["protection_from_evil"] == 0 \
-            and not check_counter_spell(other_player) \
-            and not check_dispel_magic(other_player):
-        chosen_player.health -= 1
-        res = ["Missile succesfully hit " + chosen_player.name] * 2
+    targeted_player, _ = check_reflection(other_player, casting_player)
+    if "Shield" not in targeted_player.spell_to_cast \
+            and "Protection From Evil" not in targeted_player.spell_to_cast\
+            and targeted_player.effect["protection_from_evil"] == 0 \
+            and not check_counter_spell(targeted_player) \
+            and not check_dispel_magic(targeted_player):
+        targeted_player.health -= 1
+        res = ["Missile succesfully hit " + targeted_player.name] * 2
         vis = True
     else:
         res = ["Missile thwarted"] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def finger_of_death(casting_player, other_player):
+def finger_of_death(casting_player, other_player):  # Only reflectable
     """Finger of Death spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_dispel_magic(chosen_player):
-        chosen_player.health = 0
-        res = ["Wizard " + chosen_player.name +
+    targeted_player, _ = check_reflection(other_player, casting_player)
+    if not check_dispel_magic(targeted_player):
+        targeted_player.health = 0
+        res = ["Wizard " + targeted_player.name +
                " got brutally fingered and died in a very painful way..."] * 2
         vis = True
     else:
-        res = ["Finger of Death could not be casted on " + chosen_player.name] * 2
+        res = ["Finger of Death could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def lightning_bolt(casting_player, other_player):
+def lightning_bolt(casting_player, other_player):  # Only reflectable
     """Lightning Bolt spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_dispel_magic(chosen_player):
-        chosen_player.health -= 5
-        res = [chosen_player.name + "received 5 damage from " + casting_player.name] * 2
+    targeted_player, non_targeted_player = check_reflection(other_player, casting_player)
+    if not check_dispel_magic(targeted_player):
+        targeted_player.health -= 5
+        res = [targeted_player.name + "received 5 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
-        res = ["Lightning Bolt could not be casted on " + chosen_player.name] * 2
+        res = ["Lightning Bolt could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def cause_light_wounds(casting_player, other_player):
+def cause_light_wounds(casting_player, other_player):  # Only reflectable
     """Cause Light Wounds spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_dispel_magic(chosen_player):
-        chosen_player.health -= 2
-        res = [chosen_player.name + "received 2 damage from " + casting_player.name] * 2
+    targeted_player, non_targeted_player = check_reflection(other_player, casting_player)
+    if not check_dispel_magic(targeted_player):
+        targeted_player.health -= 2
+        res = [targeted_player.name + "received 2 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
-        res = ["Cause Light Wounds could not be casted on " + chosen_player.name] * 2
+        res = ["Cause Light Wounds could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def cause_heavy_wounds(casting_player, other_player):
+def cause_heavy_wounds(casting_player, other_player):  # Only reflectable
     """Cause Heavy Wounds spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_dispel_magic(chosen_player):
-        chosen_player.health -= 3
-        res = [chosen_player.name + "received 3 damage from " + casting_player.name] * 2
+    targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
+    if not check_dispel_magic(targeted_player):
+        targeted_player.health -= 3
+        res = [targeted_player.name + "received 3 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
-        res = ["Cause Heavy Wounds could not be casted on " + chosen_player.name] * 2
+        res = ["Cause Heavy Wounds could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def fireball(casting_player, other_player):
+def fireball(casting_player, other_player):  # Only reflectable
     """Fireball spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_dispel_magic(chosen_player) \
-            and "Ice Storm" not in chosen_player.spell_to_cast:
-        chosen_player.health -= 5
-        res = [chosen_player.name + "received 5 damage from " + casting_player.name] * 2
+    targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
+    if not check_dispel_magic(targeted_player) \
+            and "Ice Storm" not in targeted_player.spell_to_cast:
+        targeted_player.health -= 5
+        res = [targeted_player.name + "received 5 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
-        res = ["Fireball could not be casted on " + chosen_player.name] * 2
+        res = ["Fireball could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def fire_storm(casting_player, other_player):
+def fire_storm(casting_player, other_player):  # Neither reflectable, nor choosable
     """Fire Storm spell"""
     if not check_dispel_magic(other_player) and "Ice Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
@@ -257,12 +272,12 @@ def fire_storm(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def ice_storm(casting_player, other_player):
+def ice_storm(casting_player, other_player):  # Neither reflectable, nor choosable
     """Ice Storm spell"""
     if not check_dispel_magic(other_player) and "Fire Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
             other_player.health -= 5
-            # casting_player only gets damage if enemy doesn't have fireball
+            # casting_player only gets damaged if enemy doesn't have fireball
         if "Fireball" not in other_player.spell_to_cast:
             casting_player.health -= 5
         res = ["Ice Storm casted by " + casting_player.name] * 2
@@ -275,30 +290,31 @@ def ice_storm(casting_player, other_player):
 # Enchantment:
 
 
-def amnesia(casting_player, other_player):
+def amnesia(casting_player, other_player):  # Only reflectable
+
     """gestures D-P-P. If the subject of this spell is a wizard, next turn he must repeat
     identically the gestures he made in the current turn, including stabs. If the subject is a
     monster it will attack whoever it attacked this turn. If the subject is simultaneously the
     subject of any of confusion, charm person, charm monster, paralysis or fear then none of
     the spells work."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player) \
-            and not chosen_player.effects["confusion"] \
-            and not chosen_player.effects["charm_person"] \
-            and not chosen_player.effects["paralysis"] \
-            and not chosen_player.effects["fear"]:
-        chosen_player.effects["amnesia"] = True
-        res = ["Amnesia casted on " + chosen_player.name] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player) \
+            and not targeted_player.effects["confusion"] \
+            and not targeted_player.effects["charm_person"] \
+            and not targeted_player.effects["paralysis"] \
+            and not targeted_player.effects["fear"]:
+        targeted_player.effects["amnesia"] = True
+        res = ["Amnesia casted on " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Amnesia could not be casted on " + chosen_player.name] * 2
+        res = ["Amnesia could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def confusion(casting_player, other_player):
+def confusion(casting_player, other_player):  # Only reflectable
     """gestures D-S-F. If the subject of this spell is a wizard, next turn he writes down his
     gestures as usual and after exposing them, rolls 2 dice to determine which gesture is
     superseded due to his being confused. The first die indicates left hand on 1-3, right on 4-6.
@@ -306,21 +322,21 @@ def confusion(casting_player, other_player):
     3=F, 4=P, 5=S, 6=W. If the subject of the spell is a monster, it attacks at random that turn.
     If the subject is also the subject of any of: amnesia, charm person, charm monster, paralysis
     or fear, none of the spells work."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player) \
-            and not chosen_player.effects["amnesia"] \
-            and not chosen_player.effects["charm_person"] \
-            and not chosen_player.effects["paralysis"] \
-            and not chosen_player.effects["fear"]:
-        chosen_player.effects["confusion"] = True
-        res = ["Confusion casted on " + chosen_player.name] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player) \
+            and not targeted_player.effects["amnesia"] \
+            and not targeted_player.effects["charm_person"] \
+            and not targeted_player.effects["paralysis"] \
+            and not targeted_player.effects["fear"]:
+        targeted_player.effects["confusion"] = True
+        res = ["Confusion casted on " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Confusion could not be casted on " + chosen_player.name] * 2
+        res = ["Confusion could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
 def charm_person(casting_player, other_player):
@@ -331,7 +347,7 @@ def charm_person(casting_player, other_player):
     reflection from a magic mirror the subject of the mirror assumes the role of caster and writes
     down his opponent's gesture. If the subject is also the subject of any of amnesia, confusion,
     charm monster, paralysis or fear, none of the spells work."""
-    chosen_player = choose_target_player(casting_player, other_player)
+    chosen_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player) \
@@ -348,7 +364,7 @@ def charm_person(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, chosen_player)
 
 
-def paralysis(casting_player, other_player):
+def paralysis(casting_player, other_player):  # Only reflectable
     """gestures F-F-F. If the subject of the spell is a wizard, then on the turn the spell is cast,
     after gestures have been revealed, the caster selects one of the wizard's hands and on the next
     turn that hand is paralyzed into the position it is in this turn. If the wizard already had a
@@ -361,217 +377,211 @@ def paralysis(casting_player, other_player):
     unaffected) it simply does not attack in the turn following the one in which the spell was cast.
     If the subject of the spell is also the subject of any of amnesia, confusion, charm person,
     charm monster or fear, none of the spells work."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player) \
-            and not chosen_player.effects["amnesia"] \
-            and not chosen_player.effects["confusion"] \
-            and not chosen_player.effects["charm_person"] \
-            and not chosen_player.effects["fear"]:
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player) \
+            and not targeted_player.effects["amnesia"] \
+            and not targeted_player.effects["confusion"] \
+            and not targeted_player.effects["charm_person"] \
+            and not targeted_player.effects["fear"]:
 
-        chosen_player.effects["paralysis"] = True
-        res = ["Paralysis casted on " + chosen_player.name] * 2
+        targeted_player.effects["paralysis"] = True
+        res = ["Paralysis casted on " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Paralysis could not be casted on " + chosen_player.name] * 2
+        res = ["Paralysis could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def fear(casting_player, other_player):
+def fear(casting_player, other_player):  # Only reflectable
     """gestures S-W-D. In the turn following the casting of this spell,
     the subject cannot perform a C, D, F or S gesture. This obviously
     has no effect on monsters. If the subject is also the subject of
     amnesia, confusion, charm person, charm monster or paralysis, then
     none of the spells work."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player) \
-            and not chosen_player.effects["amnesia"] \
-            and not chosen_player.effects["confusion"] \
-            and not chosen_player.effects["charm_person"] \
-            and not chosen_player.effects["paralysis"]:
-        chosen_player.effects["fear"] = True
-        res = ["Fear casted on " + chosen_player.name] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player) \
+            and not targeted_player.effects["amnesia"] \
+            and not targeted_player.effects["confusion"] \
+            and not targeted_player.effects["charm_person"] \
+            and not targeted_player.effects["paralysis"]:
+        targeted_player.effects["fear"] = True
+        res = ["Fear casted on " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Fear could not be casted on " + chosen_player.name] * 2
+        res = ["Fear could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def anti_spell(casting_player, other_player):
+def anti_spell(casting_player, other_player):  # Only reflectable
     """gestures S-P-F. On the turn following the casting of this spell,
     the subject cannot include any gestures made on or before this turn
     in a spell sequence and must restart a new spell from the beginning
     of that spell sequence. The spell does not affect spells which are
     cast on the same turn nor does it affect monsters."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["anti_spell"] = True
-        res = ["Anti-spell casted on " + chosen_player.name] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player):
+        targeted_player.effects["anti_spell"] = True
+        res = ["Anti-spell casted on " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Anti-spell could not be casted on " + chosen_player.name] * 2
+        res = ["Anti-spell could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def protection_from_evil(casting_player, other_player):
+def protection_from_evil(casting_player, other_player):  # Neither reflectable, nor choosable
     """Protection From Evil spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["protection_from_evil"] = 3
-        res = ["Protection From Evil casted on " + chosen_player.name] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["protection_from_evil"] = 3
+        res = ["Protection From Evil casted on " + other_player.name] * 2
         vis = True
     else:
-        res = ["Protection From Evil could not be casted on " + chosen_player.name] * 2
+        res = ["Protection From Evil could not be casted on " + other_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
-def resist_heat(casting_player, other_player):
+def resist_heat(casting_player, other_player):  # Neither reflectable, nor choosable
     """Resist Heat spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["resist_heat"] = True
-        res = ["Resist Heat casted on " + chosen_player.name] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["resist_heat"] = True
+        res = ["Resist Heat casted on " + other_player.name] * 2
         vis = True
     else:
-        res = ["Resist Heat could not be casted on " + chosen_player.name] * 2
+        res = ["Resist Heat could not be casted on " + other_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
-def resist_cold(casting_player, other_player):
+def resist_cold(casting_player, other_player):  # Neither reflectable, nor choosable
     """Resist Cold spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["resist_cold"] = True
-        res = ["Resist Cold casted on " + chosen_player.name] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["resist_cold"] = True
+        res = ["Resist Cold casted on " + other_player.name] * 2
         vis = True
     else:
-        res = ["Resist Cold could not be casted on " + chosen_player.name] * 2
+        res = ["Resist Cold could not be casted on " + other_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
-def disease(casting_player, other_player):
+def disease(casting_player, other_player):  # Only reflectable
     """Disease spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player) \
-            and "Cure Heavy Wounds" not in chosen_player.spell_to_cast:
-        chosen_player.effects["disease"] = 7
-        res = ["Disease casted on " + chosen_player.name + ". Death is coming..."] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player) \
+            and "Cure Heavy Wounds" not in targeted_player.spell_to_cast:
+        targeted_player.effects["disease"] = 7
+        res = ["Disease casted on " + targeted_player.name + ". Death is coming..."] * 2
         vis = True
     else:
-        res = ["Disease could not be casted on " + chosen_player.name] * 2
+        res = ["Disease could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def poison(casting_player, other_player):
+def poison(casting_player, other_player):  # Only reflectable
     """Poison spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["poison"] = 7
-        res = ["Poison casted on " + chosen_player.name + ". Death will be slow and painful..."] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player):
+        targeted_player.effects["poison"] = 7
+        res = ["Poison casted on " + targeted_player.name + ". Death will be slow and painful..."] * 2
         vis = True
     else:
-        res = ["Poison could not be casted on " + chosen_player.name] * 2
+        res = ["Poison could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def blindness(casting_player, other_player):
+def blindness(casting_player, other_player):  # Only reflectable
     """gestures D-W-F-F-(d. For the next 3 turns not including the one in which the spell was cast, the subject
     is unable to see. If he is a wizard, he cannot tell what his opponent's gestures are, although he must be informed
     of any which affect him (e.g. summons spells, missile etc cast at him) but not counter- spells to his own attacks.
     Indeed he will not know if his own spells work unless they also affect him (e.g. a fire storm when he isn't
     resistant to fire.) He can control his monsters (e.g. "Attack whatever it was that just attacked me"). Blinded
     monsters are instantly destroyed and cannot attack in that turn."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["blindness"] = 3
-        res = ["Blindness casted on " + chosen_player.name] * 2
+    targeted_player, _ = check_reflection(casting_player, other_player)
+    if not check_remove_enchantment(targeted_player) \
+            and not check_dispel_magic(targeted_player) \
+            and not check_counter_spell(targeted_player):
+        targeted_player.effects["blindness"] = 3
+        res = ["Blindness casted on " + targeted_player.name] * 2
         vis = True
     else:
-        res = ["Blindness could not be casted on " + chosen_player.name] * 2
+        res = ["Blindness could not be casted on " + targeted_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def invisibility(casting_player, other_player):
+def invisibility(casting_player, other_player):  # Neither reflectable, nor choosable
     """Invisibility spell"""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["invisible"] = True
-        res = [chosen_player.name + " became invisible"] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["invisible"] = True
+        res = [other_player.name + " became invisible"] * 2
         vis = True
     else:
-        res = [chosen_player.name + " could not become invisible"] * 2
+        res = [other_player.name + " could not become invisible"] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
-def haste(casting_player, other_player):
+def haste(casting_player, other_player):  # Neither reflectable, nor choosable
     """gestures P-W-P-W-W-C. For the next 3 turns, the subject (but not his monsters if a wizard) makes an extra set of
     gestures due to being speeded up. This takes effect in the following turn so that instead of giving one pair of
     gestures, 2 are given, the effect of both being taken simultaneously at the end of the turn. Thus a single
     counter-spell from his adversary could cancel 2 spells cast by the hastened wizard on 2 half-turns if the phasing is
     right. Non-hastened wizards and monsters can see everything the hastened individual is doing. Hastened monsters can
     change target in the extra turns if desired."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["haste"] = 3
-        res = ["Haste casted on " + chosen_player.name] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["haste"] = 3
+        res = ["Haste casted on " + other_player.name] * 2
         vis = True
     else:
-        res = ["Haste could not be casted on " + chosen_player.name] * 2
+        res = ["Haste could not be casted on " + other_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
-def time_stop(casting_player, other_player):
+def time_stop(casting_player, other_player):  # Neither reflectable, nor choosable
     """gestures S-P-P-C. The subject of this spell immediately takes an extra turn, on which no-one can see or know
     about unless they are harmed. All non-affected beings have no resistance to any form of attack, e.g. a wizard
     halfway through the duration of a protection from evil spell can be harmed by a monster which has had its time
     stopped. Time-stopped monsters attack whoever their controller instructs, and time-stopped elementals affect
     everyone, resistance to heat or cold being immaterial in that turn."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["time_stop"] = True
-        res = ["Time Stop on " + chosen_player.name] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["time_stop"] = True
+        res = ["Time Stop on " + other_player.name] * 2
         vis = True
     else:
-        res = ["Time Stop could not be casted on " + chosen_player.name] * 2
+        res = ["Time Stop could not be casted on " + other_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
-def delayed_effect(casting_player, other_player):
+def delayed_effect(casting_player, other_player):  # Neither reflectable, nor choosable
     """gestures D-W-S-S-S-P. This spell only works if cast upon a wizard. The next spell he completes, provided it is on
     this turn or one of the next 3 is "banked" until needed, i.e. it fails to work until its caster desires. This next
     spell which is to be banked does not include the actual spell doing the banking. The spell must be written down to
@@ -579,17 +589,16 @@ def delayed_effect(casting_player, other_player):
     subject not those cast at him. If he casts more than one spell at the same time he chooses which is to be banked.
     Remember that P is a shield spell, and surrender is not a spell. A wizard may only have one spell banked at any one
     time."""
-    chosen_player = choose_target_player(casting_player, other_player)
-    if not check_remove_enchantment(chosen_player) \
-            and not check_dispel_magic(chosen_player) \
-            and not check_counter_spell(chosen_player):
-        chosen_player.effects["delayed_effect"] = 3
-        res = ["Delayed Effect casted on " + chosen_player.name] * 2
+    if not check_remove_enchantment(other_player) \
+            and not check_dispel_magic(other_player) \
+            and not check_counter_spell(other_player):
+        other_player.effects["delayed_effect"] = 3
+        res = ["Delayed Effect casted on " + other_player.name] * 2
         vis = True
     else:
-        res = ["Delayed Effect could not be casted on " + chosen_player.name] * 2
+        res = ["Delayed Effect could not be casted on " + other_player.name] * 2
         vis = False
-    return get_visible_results(casting_player, other_player, res, vis, chosen_player)
+    return get_visible_results(casting_player, other_player, res, vis)
 
 
 def permanency(casting_player, other_player):
@@ -603,7 +612,7 @@ def permanency(casting_player, other_player):
     subject of the spell. A permanency spell cannot increase its own duration, nor the duration of spells saved by a
     delayed effect (so if both a permanency and delayed effect are eligible for the same spell to be banked or extended,
     a choice must be made, the losing spell being neutralized and working on the next spell instead)."""
-    chosen_player = choose_target_player(casting_player, other_player)
+    chosen_player = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(chosen_player) \
             and not check_dispel_magic(chosen_player) \
             and not check_counter_spell(chosen_player):
@@ -619,7 +628,7 @@ def permanency(casting_player, other_player):
 # Non-spells
 
 
-def stab(casting_player, other_player):
+def stab(casting_player, other_player):  # Neither reflectable, nor choosable
     """Stab no-spell"""
     if "Shield" not in other_player.spell_to_cast \
             and "Protection From Evil" not in other_player.spell_to_cast \
@@ -660,7 +669,6 @@ EFFECT_DICT = {
     "anti_spell": False,
     "fear": False,
     "paralysis": False,
-    "charm_person": False,
     "confusion": False,
     "amnesia": False,
     "permanency": 0,
