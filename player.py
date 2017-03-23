@@ -17,6 +17,7 @@ class Player(object):
         self.banked = ""
         self.affected_hand = None
         self.new_gesture = ""
+        self.damage_taken = 0
         self.effects = effects
         self.name = input("Enter a player name: ")
 
