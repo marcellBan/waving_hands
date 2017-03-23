@@ -150,7 +150,7 @@ def raise_dead(casting_player, other_player):  # Neither reflectable, nor choosa
 def cure_light_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
     """Cure Light Wounds spell"""
     if casting_player.health < 15:
-        casting_player.health += 1
+        casting_player.damage_taken -= 1
         res = [casting_player.name + ": Restored 1 hp"] * 2
     else:
         res = ["Cure wasted: nothing to cure on " + casting_player.name] * 2
@@ -160,11 +160,11 @@ def cure_light_wounds(casting_player, other_player):  # Neither reflectable, nor
 def cure_heavy_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
     """Cure Heavy Wounds spell"""
     if casting_player.health < 14:
-        casting_player.health += 2
+        casting_player.damage_taken -= 2
         casting_player.effects["disease"] = False
         res = [casting_player.name + ": Restored 2 hp, disease effect removed."] * 2
     elif casting_player.health == 14:
-        casting_player.health += 1
+        casting_player.damage_taken -= 1
         casting_player.effects["disease"] = False
         res = [casting_player.name + ": Restored 1 hp, disease effect removed."] * 2
     else:
@@ -179,10 +179,10 @@ def missile(casting_player, other_player):  # Only reflectable
     targeted_player, _ = check_reflection(other_player, casting_player)
     if "Shield" not in targeted_player.spell_to_cast \
             and "Protection From Evil" not in targeted_player.spell_to_cast\
-            and targeted_player.effect["protection_from_evil"] == 0 \
+            and targeted_player.effects["protection_from_evil"] == 0 \
             and not check_counter_spell(targeted_player) \
             and not check_dispel_magic(targeted_player):
-        targeted_player.health -= 1
+        targeted_player.damage_taken += 1
         res = ["Missile succesfully hit " + targeted_player.name] * 2
         vis = True
     else:
@@ -194,8 +194,9 @@ def missile(casting_player, other_player):  # Only reflectable
 def finger_of_death(casting_player, other_player):  # Only reflectable
     """Finger of Death spell"""
     targeted_player, _ = check_reflection(other_player, casting_player)
-    if not check_dispel_magic(targeted_player):
-        targeted_player.health = 0
+    if not check_dispel_magic(targeted_player) \
+            and not targeted_player.effects["raise_dead"]:
+        targeted_player.damage_taken += 100
         res = ["Wizard " + targeted_player.name +
                " got brutally fingered and died in a very painful way..."] * 2
         vis = True
@@ -209,7 +210,7 @@ def lightning_bolt(casting_player, other_player):  # Only reflectable
     """Lightning Bolt spell"""
     targeted_player, non_targeted_player = check_reflection(other_player, casting_player)
     if not check_dispel_magic(targeted_player):
-        targeted_player.health -= 5
+        targeted_player.damage_taken += 5
         res = [targeted_player.name + "received 5 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
@@ -222,7 +223,7 @@ def cause_light_wounds(casting_player, other_player):  # Only reflectable
     """Cause Light Wounds spell"""
     targeted_player, non_targeted_player = check_reflection(other_player, casting_player)
     if not check_dispel_magic(targeted_player):
-        targeted_player.health -= 2
+        targeted_player.damage_taken += 2
         res = [targeted_player.name + "received 2 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
@@ -235,7 +236,7 @@ def cause_heavy_wounds(casting_player, other_player):  # Only reflectable
     """Cause Heavy Wounds spell"""
     targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
     if not check_dispel_magic(targeted_player):
-        targeted_player.health -= 3
+        targeted_player.damage_taken += 3
         res = [targeted_player.name + "received 3 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
@@ -249,7 +250,7 @@ def fireball(casting_player, other_player):  # Only reflectable
     targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
     if not check_dispel_magic(targeted_player) \
             and "Ice Storm" not in targeted_player.spell_to_cast:
-        targeted_player.health -= 5
+        targeted_player.damage_taken += 5
         res = [targeted_player.name + "received 5 damage from " + non_targeted_player.name] * 2
         vis = True
     else:
@@ -262,8 +263,8 @@ def fire_storm(casting_player, other_player):  # Neither reflectable, nor choosa
     """Fire Storm spell"""
     if not check_dispel_magic(other_player) and "Ice Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
-            other_player.health -= 5
-        casting_player.health -= 5
+            other_player.damage_taken += 5
+        casting_player.damage_taken += 5
         res = ["Fire Storm casted by " + casting_player.name] * 2
         vis = True
     else:
@@ -276,10 +277,10 @@ def ice_storm(casting_player, other_player):  # Neither reflectable, nor choosab
     """Ice Storm spell"""
     if not check_dispel_magic(other_player) and "Fire Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
-            other_player.health -= 5
+            other_player.damage_taken += 5
             # casting_player only gets damaged if enemy doesn't have fireball
         if "Fireball" not in other_player.spell_to_cast:
-            casting_player.health -= 5
+            casting_player.damage_taken += 5
         res = ["Ice Storm casted by " + casting_player.name] * 2
         vis = True
     else:
@@ -635,7 +636,7 @@ def stab(casting_player, other_player):  # Neither reflectable, nor choosable
             and other_player.effects["protection_from_evil"] == 0 \
             and not check_counter_spell(other_player) \
             and not check_dispel_magic(other_player):
-        other_player.health -= 1
+        other_player.damage_taken += 1
         res = [casting_player.name + " stabbed " + other_player.name] * 2
         vis = True
     else:
@@ -676,7 +677,8 @@ EFFECT_DICT = {
     "blindness": 0,
     "haste": 0,
     "time_stop": False,
-    "surrender": False
+    "surrender": False,
+    "raise_dead": False
 }
 
 SPELL_DATA = [
