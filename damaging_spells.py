@@ -7,7 +7,7 @@ from spell_helpers import check_counter_spell, check_reflection
 from spell_helpers import check_dispel_magic, get_visible_results
 
 
-def missile(casting_player, other_player):  # Only reflectable
+def missile(casting_player, other_player):
     """Missile spell"""
     targeted_player, _ = check_reflection(other_player, casting_player)
     if "Shield" not in targeted_player.spell_to_cast \
@@ -24,7 +24,7 @@ def missile(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def finger_of_death(casting_player, other_player):  # Only reflectable
+def finger_of_death(casting_player, other_player):
     """Finger of Death spell"""
     targeted_player, _ = check_reflection(other_player, casting_player)
     if not check_dispel_magic(targeted_player) \
@@ -39,7 +39,7 @@ def finger_of_death(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def lightning_bolt(casting_player, other_player):  # Only reflectable
+def lightning_bolt(casting_player, other_player):
     """Lightning Bolt spell"""
     targeted_player, non_targeted_player = check_reflection(other_player, casting_player)
     if not check_dispel_magic(targeted_player):
@@ -52,7 +52,7 @@ def lightning_bolt(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def cause_light_wounds(casting_player, other_player):  # Only reflectable
+def cause_light_wounds(casting_player, other_player):
     """Cause Light Wounds spell"""
     targeted_player, non_targeted_player = check_reflection(other_player, casting_player)
     if not check_dispel_magic(targeted_player):
@@ -65,7 +65,7 @@ def cause_light_wounds(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def cause_heavy_wounds(casting_player, other_player):  # Only reflectable
+def cause_heavy_wounds(casting_player, other_player):
     """Cause Heavy Wounds spell"""
     targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
     if not check_dispel_magic(targeted_player):
@@ -78,7 +78,7 @@ def cause_heavy_wounds(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def fireball(casting_player, other_player):  # Only reflectable
+def fireball(casting_player, other_player): 
     """Fireball spell"""
     targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
     if not check_dispel_magic(targeted_player) \
@@ -92,7 +92,7 @@ def fireball(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def fire_storm(casting_player, other_player):  # Neither reflectable, nor choosable
+def fire_storm(casting_player, other_player):
     """Fire Storm spell"""
     if not check_dispel_magic(other_player) and "Ice Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):
@@ -106,7 +106,7 @@ def fire_storm(casting_player, other_player):  # Neither reflectable, nor choosa
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def ice_storm(casting_player, other_player):  # Neither reflectable, nor choosable
+def ice_storm(casting_player, other_player):
     """Ice Storm spell"""
     if not check_dispel_magic(other_player) and "Fire Storm" not in other_player.spell_to_cast:
         if not check_counter_spell(other_player):

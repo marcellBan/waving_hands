@@ -14,7 +14,7 @@ def shield(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res)
 
 
-def remove_enchantment(casting_player, other_player):  # Both choosable and reflectable
+def remove_enchantment(casting_player, other_player):
     """Remove Enchantment spell"""
     targeted_player, _ = choose_target(casting_player, other_player)
     if not check_counter_spell(targeted_player):
@@ -27,7 +27,7 @@ def remove_enchantment(casting_player, other_player):  # Both choosable and refl
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def magic_mirror(casting_player, other_player):  # Neither reflectable, nor choosable
+def magic_mirror(casting_player, other_player):
     """Magic Mirror spell"""
     if not check_counter_spell(other_player) \
             and not check_dispel_magic(other_player) \
@@ -39,7 +39,7 @@ def magic_mirror(casting_player, other_player):  # Neither reflectable, nor choo
     return get_visible_results(casting_player, other_player, res)
 
 
-def counter_spell(casting_player, other_player):  # Neither reflectable, nor choosable
+def counter_spell(casting_player, other_player):
     """Counter Spell spell"""
     if not check_dispel_magic(other_player):
         res = [casting_player.name + ": Counter Spell used"] * 2
@@ -48,21 +48,21 @@ def counter_spell(casting_player, other_player):  # Neither reflectable, nor cho
     return get_visible_results(casting_player, other_player, res)
 
 
-def dispel_magic(casting_player, other_player):  # Neither reflectable, nor choosable
+def dispel_magic(casting_player, other_player):
     """Dispel Magic spell"""
     init_effects(casting_player, other_player)
     res = [casting_player.name + ": Dispel Magic casted"] * 2
     return get_visible_results(casting_player, other_player, res)
 
 
-def raise_dead(casting_player, other_player):  # Neither reflectable, nor choosable
+def raise_dead(casting_player, other_player):
     """Raise dead spell"""
     casting_player.effects["raise_dead"] = True
     res = [casting_player.name + ": Raise Dead casted"] * 2
     return get_visible_results(casting_player, other_player, res)
 
 
-def cure_light_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
+def cure_light_wounds(casting_player, other_player):
     """Cure Light Wounds spell"""
     if casting_player.health < 15:
         casting_player.damage_taken -= 1
@@ -72,7 +72,7 @@ def cure_light_wounds(casting_player, other_player):  # Neither reflectable, nor
     return get_visible_results(casting_player, other_player, res)
 
 
-def cure_heavy_wounds(casting_player, other_player):  # Neither reflectable, nor choosable
+def cure_heavy_wounds(casting_player, other_player):
     """Cure Heavy Wounds spell"""
     if casting_player.health < 14:
         casting_player.damage_taken -= 2

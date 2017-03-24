@@ -6,7 +6,7 @@
 from spell_helpers import *
 
 
-def amnesia(casting_player, other_player):  # Only reflectable
+def amnesia(casting_player, other_player):
     """Amnesia spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
@@ -25,7 +25,7 @@ def amnesia(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def confusion(casting_player, other_player):  # Only reflectable
+def confusion(casting_player, other_player):
     """Confusion spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
@@ -117,7 +117,7 @@ def protection_from_evil(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def resist_heat(casting_player, other_player):  # Neither reflectable, nor choosable
+def resist_heat(casting_player, other_player):
     """Resist Heat spell"""
     if not check_remove_enchantment(other_player) \
             and not check_dispel_magic(other_player) \
@@ -131,7 +131,7 @@ def resist_heat(casting_player, other_player):  # Neither reflectable, nor choos
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def resist_cold(casting_player, other_player):  # Neither reflectable, nor choosable
+def resist_cold(casting_player, other_player):
     """Resist Cold spell"""
     if not check_remove_enchantment(other_player) \
             and not check_dispel_magic(other_player) \
@@ -145,7 +145,7 @@ def resist_cold(casting_player, other_player):  # Neither reflectable, nor choos
     return get_visible_results(casting_player, other_player, res, vis)
 
 
-def disease(casting_player, other_player):  # Only reflectable
+def disease(casting_player, other_player):
     """Disease spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
@@ -161,7 +161,7 @@ def disease(casting_player, other_player):  # Only reflectable
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def poison(casting_player, other_player):  # Only reflectable
+def poison(casting_player, other_player):
     """Poison spell"""
     targeted_player, _ = check_reflection(casting_player, other_player)
     if not check_remove_enchantment(targeted_player) \
@@ -191,7 +191,7 @@ def blindness(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def invisibility(casting_player, other_player):  # Neither reflectable, nor choosable
+def invisibility(casting_player, other_player):
     """Invisibility spell"""
     if not check_remove_enchantment(other_player) \
             and not check_dispel_magic(other_player) \

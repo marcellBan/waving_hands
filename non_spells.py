@@ -7,7 +7,7 @@ from spell_helpers import check_counter_spell, check_dispel_magic
 from spell_helpers import get_visible_results
 
 
-def stab(casting_player, other_player):  # Neither reflectable, nor choosable
+def stab(casting_player, other_player):
     """Stab no-spell"""
     if "Shield" not in other_player.spell_to_cast \
             and "Protection From Evil" not in other_player.spell_to_cast \
