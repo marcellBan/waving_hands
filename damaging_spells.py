@@ -78,7 +78,7 @@ def cause_heavy_wounds(casting_player, other_player):
     return get_visible_results(casting_player, other_player, res, vis, targeted_player)
 
 
-def fireball(casting_player, other_player): 
+def fireball(casting_player, other_player):
     """Fireball spell"""
     targeted_player, non_targeted_player = check_reflection(casting_player, other_player)
     if not check_dispel_magic(targeted_player) \
