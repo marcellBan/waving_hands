@@ -39,7 +39,7 @@ SPELL_DATA = [
     ("Magic Mirror", "C(w", magic_mirror),
     ("Counter Spell", "WPP", counter_spell),
     ("Dispel Magic", "CDPW", dispel_magic),
-    ("Raise Dead", "D-W-W-F-W-C", raise_dead),
+    ("Raise Dead", "DWWFWC", raise_dead),
     ("Cure Light Wounds", "DFW", cure_light_wounds),
     ("Cure Heavy Wounds", "DFPW", cure_heavy_wounds),
 
