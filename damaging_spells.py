@@ -8,7 +8,7 @@ from spell_helpers import check_dispel_magic, get_visible_results
 
 
 def missile(casting_player, other_player):
-    """Missile spell"""
+    """Missile spell function"""
     targeted_player, _ = check_reflection(other_player, casting_player)
     if "Shield" not in targeted_player.spell_to_cast \
             and "Protection From Evil" not in targeted_player.spell_to_cast\
